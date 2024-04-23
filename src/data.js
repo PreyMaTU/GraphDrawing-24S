@@ -2,6 +2,8 @@ import * as d3 from 'd3';
 import stripBom from 'strip-bom';
 import fs from 'node:fs/promises';
 
+import { Country, SportCategory, Medal } from './country.js';
+
 async function readProjectRelativeFile( relativePath ) {
   return stripBom( await fs.readFile( new URL( relativePath, import.meta.url ), 'utf-8' ) );
 }
@@ -24,7 +26,7 @@ export async function loadDatasets() {
   };
 }
 
-export function mapRegion( committees ) {
+export function mapIntoRegionTable( committees ) {
   const regionsByNoc= new Map();
   for( const row of committees ) {
     const { Code: noc, Region: region }= row;
@@ -34,7 +36,7 @@ export function mapRegion( committees ) {
   return regionsByNoc;
 }
 
-export function mapGdpData( gdp, codes, ioc ) {
+export function mergeIntoGdpData( gdp, codes, ioc ) {
   const countriesByName= new Map();
 
   for( const row of gdp ) {
@@ -77,4 +79,69 @@ export function mapGdpData( gdp, codes, ioc ) {
   }
 
   return countriesByNoc;
+}
+
+export function mergeIntoCountries( olympics, countryGdps, regions ) {
+  /** @type {Map<string, Country>} */
+  const countries= new Map();
+
+  // Create all the countries from the node section
+  for( const node of olympics.nodes ) {
+    if( node.noc ) {
+      // Try to lookup GDP data for the country
+      const gdpData= countryGdps.get( node.noc );
+      if( !gdpData ) {
+        console.error(`Could not find a GDP for NOC '${node.noc}'`);
+      }
+
+      // Try to lookup region for the country
+      const region= regions.get( node.noc );
+      if( !region ) {
+        console.error(`Could not find a region for NOC '${node.noc}'`);
+      }
+
+      const country= new Country( node.name, node.noc, region || 'No Region', gdpData ? gdpData.value : 0 );
+      countries.set( node.noc, country );
+    }
+  }
+
+  // Populate the countries with their medals
+  for( const link of olympics.links ) {
+    const country= countries.get( link.target )
+    if( !country ) {
+      console.error( `Link refers to unknown country '${link.target}'` );
+      continue;
+    }
+
+    const category= country[link.source];
+    if( !(category instanceof SportCategory) ) {
+      console.error( `Link refers to unknown sport category '${link.source}'` );
+      continue;
+    }
+
+    // Iterate over the link's attributes
+    for( const attr of link.attr ) {
+      const medal= new Medal( attr.athlete.name, attr.year, attr.sport );
+      category.addMedal( attr.medal, medal );
+    }
+  }
+
+  fixDataProblems( countries );
+
+  const countryArray= [ ...countries.values() ];
+  for( const country of countryArray ) {
+    country.countMedals();
+    country.orderMedals();
+  }
+
+  return countryArray;
+}
+
+
+export function fixDataProblems( countries ) {
+  const fakeRussia= countries.get('ROC');
+  const realRussia= countries.get('RUS');
+
+  realRussia.mergeWith( fakeRussia );
+  countries.delete( fakeRussia.noc );
 }
