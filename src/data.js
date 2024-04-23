@@ -157,6 +157,11 @@ export function orderIntoOrderedRegions( countries, medalType ) {
     return country[ medalType+ 'Medals' ];
   }
 
+  // Remove countries without any medals
+  const unfilteredCount= countries.length;
+  countries= countries.filter( c => medalsOf(c) > 0 );
+  console.log(`Filtered out ${unfilteredCount- countries.length} countries without '${medalType}' medals`);
+
   // Group countries by region
   const groupedCountries = d3.group(countries, c => c.region);
 
@@ -164,7 +169,7 @@ export function orderIntoOrderedRegions( countries, medalType ) {
   const regions= [];
   groupedCountries.forEach((group, name) => {
     // Sort countries within each region by medal count
-    group.sort((a, b) => medalsOf(b) - medalsOf(a) );
+    group= group.sort((a, b) => medalsOf(b) - medalsOf(a) );
 
     // Count the medals per region
     const medals= group.reduce( (sum, c) => sum+ medalsOf(c), 0 );
@@ -177,8 +182,9 @@ export function orderIntoOrderedRegions( countries, medalType ) {
   // Set the index of each country
   let idx= 0;
   regions.forEach( region => {
-    groupedCountries.get( region.name ).forEach( c => c.index= idx++ );
+    region.countries.forEach( c => c.index= idx++ );
   });
 
-  return regions;
+
+  return { countries, regions };
 }

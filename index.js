@@ -14,9 +14,7 @@ async function prepareData() {
   const regionTable= mapIntoRegionTable( committees );
   const countryGdps= mergeIntoGdpData( gdp, codes, ioc );
   const countries= mergeIntoCountries( olympics, countryGdps, regionTable );
-  const regions= orderIntoOrderedRegions( countries, 'total' );
-
-  return { countries, regions };
+  return orderIntoOrderedRegions( countries, 'total' );
 }
 
 
