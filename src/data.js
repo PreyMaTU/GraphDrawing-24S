@@ -37,8 +37,10 @@ export function mapIntoRegionTable( committees ) {
 }
 
 export function mergeIntoGdpData( gdp, codes, ioc ) {
-  const countriesByName= new Map();
 
+  // Create a map from CIA GDP values
+  // name -> {name, value}
+  const countriesByName= new Map();
   for( const row of gdp ) {
     const { name, value: valueText }= row;
 
@@ -50,31 +52,41 @@ export function mergeIntoGdpData( gdp, codes, ioc ) {
     countriesByName.set( name, { name, value });
   }
 
+  // Create a map for conversion from iso code to CIA name
+  // ISO -> name
   const isoCodes= new Map();
   for( const row of codes ) {
     isoCodes.set( row.GENC, row.Name );
   }
 
+  // Join the the three data sets together to create a map
+  // of IOC codes (NOC) to a countries name and GDP value
+  // NOC -> { name, value }
   const countriesByNoc= new Map();
   for( const row of ioc ) {
+    // NOC -> ISO
     const { IOC: noc, ISO: iso }= row;
 
+    // No valid NOC
     if( !noc || !noc.trim().length ) {
       continue;
     }
 
+    // Get NOC -> ISO -> name
     const ciaName= isoCodes.get( iso );
     if( !ciaName ) {
       console.error(`Could not find the name of country with ISO code '${iso}' / IOC '${noc}'`);
       continue;
     }
 
+    // Get NOC -> ISO -> name -> { name, value }
     const country= countriesByName.get( ciaName );
     if( !country ) {
       console.error(`Could not find country GDP by country name '${ciaName}'`);
       continue;
     }
 
+    // Set NOC -> { name, value }
     countriesByNoc.set( noc, country );
   }
 
@@ -126,6 +138,7 @@ export function mergeIntoCountries( olympics, countryGdps, regions ) {
     }
   }
 
+  // Handle some (ugly) special cases
   fixDataProblems( countries );
 
   const countryArray= [ ...countries.values() ];
