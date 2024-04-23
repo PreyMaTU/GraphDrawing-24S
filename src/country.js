@@ -88,6 +88,11 @@ export class Country {
     this.other= new SportCategory('other');
     this.racquets= new SportCategory('racquets');
     this.teams= new SportCategory('teams');
+
+    // Data used for visualization
+    this.index= 0;
+    this.x= 0;
+    this.y= 0;
   }
 
   /** @param {function(SportCategory, string):void} fn  */
@@ -141,7 +146,7 @@ export function mapCountries( olympics, countryGdps, regions ) {
         console.error(`Could not find a region for NOC '${node.noc}'`);
       }
 
-      const country= new Country( node.name, node.noc, region || 'No Region', gdpData ? gdpData.gdp : 0 );
+      const country= new Country( node.name, node.noc, region || 'No Region', gdpData ? gdpData.value : 0 );
       countries.set( node.noc, country );
     }
   }
