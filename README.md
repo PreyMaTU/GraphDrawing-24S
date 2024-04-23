@@ -10,6 +10,7 @@ or equivalent compatible package managers after pulling the repository.
 
 ```bash
 npm i
+npm run start
 ```
 
 ## Authors
