@@ -7,33 +7,45 @@ async function readProjectRelativeFile( relativePath ) {
 }
 
 export async function loadDatasets() {
-  const [ olympics, gdp, codes, ioc ]= await Promise.all([
+  const [ olympics, gdp, codes, ioc, committees ]= await Promise.all([
     readProjectRelativeFile( '../data/olympics.json' ),
     readProjectRelativeFile( '../data/gdp_per_capita.csv' ),
     readProjectRelativeFile( '../data/country_codes.csv' ),
     readProjectRelativeFile( '../data/ioc_codes.csv' ),
+    readProjectRelativeFile( '../data/olympic_committees.csv' )
   ]);
 
   return {
     olympics: JSON.parse( olympics ),
     gdp: d3.csvParse( gdp ),
     codes: d3.csvParse( codes ),
-    ioc: d3.csvParse( ioc )
+    ioc: d3.csvParse( ioc ),
+    committees: d3.csvParse( committees )
   };
+}
+
+export function mapRegion( committees ) {
+  const regionsByNoc= new Map();
+  for( const row of committees ) {
+    const { Code: noc, Region: region }= row;
+    regionsByNoc.set( noc, region );
+  }
+
+  return regionsByNoc;
 }
 
 export function mapGdpData( gdp, codes, ioc ) {
   const countriesByName= new Map();
 
   for( const row of gdp ) {
-    const { 'name': name, value: valueText, region }= row;
+    const { name, value: valueText }= row;
 
     const value= parseInt( valueText.replace(/[^\d]/g, '') );
     if( Number.isNaN( value ) ) {
       console.error(`Could not parse GDP value for '${name}' with '${valueText}'`);
     }
 
-    countriesByName.set( name, { name, value, region });
+    countriesByName.set( name, { name, value });
   }
 
   const isoCodes= new Map();

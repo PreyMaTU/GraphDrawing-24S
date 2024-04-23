@@ -19,6 +19,12 @@ npm run start
 - `gdp_per_capita.csv` - [CIA Factbook](https://www.cia.gov/the-world-factbook/field/real-gdp-per-capita/country-comparison/)
 - `country_codes.csv` - [CIA Factbook](https://www.cia.gov/the-world-factbook/references/country-data-codes/)
 - `ioc_codes.csv` - [Wikipedia](https://simple.wikipedia.org/wiki/Comparison_of_IOC,_FIFA,_and_ISO_3166_country_codes) downloaded with [this CSV converter](https://wikitable2csv.ggor.de/).
+- `olympic_committees.csv` - Tables from multiple Wikipedia articles merged together
+  - [Africa](https://en.wikipedia.org/wiki/Association_of_National_Olympic_Committees_of_Africa)
+  - [America](https://en.wikipedia.org/wiki/Panam_Sports)
+  - [Asia](https://en.wikipedia.org/wiki/Olympic_Council_of_Asia)
+  - [Europe](https://en.wikipedia.org/wiki/European_Olympic_Committees)
+  - [Oceania](https://en.wikipedia.org/wiki/Oceania_National_Olympic_Committees)
 
 ## Authors
 

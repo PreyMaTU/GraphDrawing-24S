@@ -58,9 +58,10 @@ export class Country {
    * @param {string} noc
    * @param {number} gdp GPD per capita
    */
-  constructor(name, noc, gdp) {
+  constructor(name, noc, region, gdp) {
     this.name= name;
     this.noc= noc;
+    this.region= region;
     this.gdp= gdp;
 
     this.totalMedals= 0;
@@ -103,7 +104,7 @@ export class Country {
   }
 }
 
-export function mapCountries( olympics, countryGdps ) {
+export function mapCountries( olympics, countryGdps, regions ) {
   /** @type {Map<string, Country>} */
   const countries= new Map();
 
@@ -116,7 +117,13 @@ export function mapCountries( olympics, countryGdps ) {
         console.error(`Could not find a GDP for NOC '${node.noc}'`);
       }
 
-      const country= new Country( node.name, node.noc, gdpData ? gdpData.gdp : 0 );
+      // Try to lookup region for the country
+      const region= regions.get( node.noc );
+      if( !region ) {
+        console.error(`Could not find a region for NOC '${node.noc}'`);
+      }
+
+      const country= new Country( node.name, node.noc, region || 'No Region', gdpData ? gdpData.gdp : 0 );
       countries.set( node.noc, country );
     }
   }
