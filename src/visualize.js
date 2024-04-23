@@ -16,6 +16,16 @@ const Constants= {
   centerMargin: -1,
 };
 
+function circleCoordX( index, count, radius ) {
+  const angle= (2* Math.PI* index) / count;
+  return Constants.center.x + radius* Math.sin(angle);
+}
+
+function circleCoordY( index, count, radius ) {
+  const angle= (2* Math.PI* index) / count;
+  return Constants.center.y + radius* -Math.cos(angle);
+}
+
 /**  @param {Country[]} countries */
 function computeCountryIndices( countries ) {
   // Group countries by region
@@ -61,10 +71,9 @@ function computeCountryPositions( countries ) {
 
   // Compute the position of each country based on its index
   for( const country of countries ) {
-    const angle= (2* Math.PI* country.index) / countries.length;
     const gdp= Math.max( minGdp, country.gdp );
-    country.x= Constants.center.x + gdpScale( gdp ) * Math.sin(angle);
-    country.y= Constants.center.y + gdpScale( gdp ) * -Math.cos(angle);
+    country.x= circleCoordX( country.index, countries.length, gdpScale( gdp ) );
+    country.y= circleCoordY( country.index, countries.length, gdpScale( gdp ) );
 
     // console.log( `${country.name} - GDP: ${country.gdp}, Index: ${country.index}, Position: (${country.x}, ${country.y})` )
   }
@@ -105,8 +114,8 @@ export function visualize( countries ) {
   const regionSeparators= svg.selectAll('.region-line')
     .data( regions )
     .enter().append('line')
-    .attr('x1', r => r.lastCountry.x )
-    .attr('y1', r => r.lastCountry.y )
+    .attr('x1', r => circleCoordX( r.lastCountry.index, countries.length, Constants.radius) )
+    .attr('y1', r => circleCoordY( r.lastCountry.index, countries.length, Constants.radius) )
     .attr('x2', Constants.center.x)
     .attr('y2', Constants.center.y)
     .style('stroke', 'lightgrey');
@@ -127,6 +136,25 @@ export function visualize( countries ) {
     .attr('x', c => c.x + 10)
     .attr('y', c => c.y + 5)
     .text(c => c.name);
+
+  /*
+  // Draw edges for medals
+  const edges = svg.selectAll('.edge')
+    .data(data)
+    .enter().append('g')
+    .attr('class', 'edge');
+
+  edges.selectAll('line')
+    .data(d => d.medals.map(medal => ({ country: d, sport: medal.sport })))
+    .enter().append('line')
+    .attr('x1', (d, i) => getPosition(data.indexOf(d.country), data.length).x)
+    .attr('y1', (d, i) => getPosition(data.indexOf(d.country), data.length).y)
+    .attr('x2', center.x)
+    .attr('y2', center.y)
+    .style('stroke', 'gray');
+
+  console.log(  )
+  */
 
   return body;
 }
