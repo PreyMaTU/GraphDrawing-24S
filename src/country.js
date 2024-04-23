@@ -45,6 +45,13 @@ class SportCategory {
     this.silverMedals.sort( comparator );
     this.bronzeMedals.sort( comparator );
   }
+
+  /** @param {SportCategory} other */
+  mergeWith( other ) {
+    this.goldMedals.push( ...other.goldMedals );
+    this.silverMedals.push( ...other.silverMedals );
+    this.bronzeMedals.push( ...other.bronzeMedals );
+  }
 }
 
 export class Country {
@@ -56,6 +63,7 @@ export class Country {
   /**
    * @param {string} name 
    * @param {string} noc
+   * @param {string} region
    * @param {number} gdp GPD per capita
    */
   constructor(name, noc, region, gdp) {
@@ -90,6 +98,10 @@ export class Country {
   }
 
   countMedals() {
+    this.goldMedals= 0;
+    this.silverMedals= 0;
+    this.bronzeMedals= 0;
+
     this.forEachCategory( category => {
       this.goldMedals+= category.goldMedals.length;
       this.silverMedals+= category.silverMedals.length;
@@ -101,6 +113,12 @@ export class Country {
 
   orderMedals() {
     this.forEachCategory( category => category.orderMedals() );
+  }
+
+  /** @param {Country} other  */
+  mergeWith( other ) {
+    this.forEachCategory( (category, categoryName) => category.mergeWith( other[categoryName] ) )
+    this.countMedals();
   }
 }
 
@@ -149,6 +167,8 @@ export function mapCountries( olympics, countryGdps, regions ) {
     }
   }
 
+  fixDataProblems( countries );
+
   const countryArray= [ ...countries.values() ];
   for( const country of countryArray ) {
     country.countMedals();
@@ -156,4 +176,13 @@ export function mapCountries( olympics, countryGdps, regions ) {
   }
 
   return countryArray;
+}
+
+
+export function fixDataProblems( countries ) {
+  const fakeRussia= countries.get('ROC');
+  const realRussia= countries.get('RUS');
+
+  realRussia.mergeWith( fakeRussia );
+  countries.delete( fakeRussia.noc );
 }
