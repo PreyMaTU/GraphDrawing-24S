@@ -2,7 +2,10 @@
 import * as d3 from 'd3';
 import { JSDOM } from 'jsdom';
 
-/** @typedef {import('./country.js').Country} Country */
+/** 
+ * @typedef {import('./country.js').Country} Country
+ * @typedef {import('./country.js').Region} Region
+ */
 
 const Constants= {
   width: 1000,
@@ -27,39 +30,6 @@ function circleCoordY( index, count, radius ) {
 }
 
 /**  @param {Country[]} countries */
-function computeCountryIndices( countries ) {
-  // Group countries by region
-  const regionGroups = d3.group(countries, c => c.region);
-
-  // TODO: We are currently just using the total medals, but in actuality
-  // we are supposed to make three charts for each kind of medal
-
-  /** @type {{name: string, medals: number, firstCountry: Country, lastCountry: Country}[]} */
-  const regionSizes= [];
-  regionGroups.forEach((group, name) => {
-    // Sort countries within each region by medal count
-    group.sort((a, b) => b.totalMedals - a.totalMedals);
-
-    // Count the medals per region
-    const medals= group.reduce( (sum, c) => sum+ c.totalMedals, 0 );
-    const firstCountry= group[0];
-    const lastCountry= group[group.length- 1];
-    regionSizes.push({name, medals, firstCountry, lastCountry});
-  });
-
-  // Sort regions by their total medal counts
-  regionSizes.sort((a, b) => b.medals- a.medals);
-
-  // Set the index of each country
-  let idx= 0;
-  regionSizes.forEach( region => {
-    regionGroups.get( region.name ).forEach( c => c.index= idx++ );
-  });
-
-  return regionSizes;
-}
-
-/**  @param {Country[]} countries */
 function computeCountryPositions( countries ) {
   // Create scale for positioning
   const minGdp= d3.min(countries.filter(c => c.gdp > 0), c => c.gdp);
@@ -81,8 +51,11 @@ function computeCountryPositions( countries ) {
   return gdpScale;
 }
 
-/**  @param {Country[]} countries */
-export function visualize( countries ) {
+/**
+ *  @param {Country[]} countries
+ *  @param {Region[]} regions
+ */
+export function visualize( countries, regions ) {
   // Compute constants
   Constants.radius= Math.min(Constants.width, Constants.height) / 2 - Constants.margin;
   Constants.center= { x: Constants.width / 2, y: Constants.height / 2 };
@@ -98,7 +71,6 @@ export function visualize( countries ) {
     .attr('height', Constants. height)
     .attr('xmlns', 'http://www.w3.org/2000/svg');
 
-  const regions= computeCountryIndices( countries );
   const gdpScale= computeCountryPositions( countries );
 
   // Draw circles for GDP levels

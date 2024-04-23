@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import stripBom from 'strip-bom';
 import fs from 'node:fs/promises';
 
-import { Country, SportCategory, Medal } from './country.js';
+import { Country, SportCategory, Medal, Region } from './country.js';
 
 async function readProjectRelativeFile( relativePath ) {
   return stripBom( await fs.readFile( new URL( relativePath, import.meta.url ), 'utf-8' ) );
@@ -144,4 +144,41 @@ export function fixDataProblems( countries ) {
 
   realRussia.mergeWith( fakeRussia );
   countries.delete( fakeRussia.noc );
+}
+
+
+/**  @param {Country[]} countries */
+export function orderIntoOrderedRegions( countries, medalType ) {
+  if( ['bronze', 'silver', 'gold', 'total'].indexOf(medalType) < 0 ) {
+    throw Error(`Invalid medal type '${medalType}' for ordering`);
+  }
+
+  function medalsOf( country ) {
+    return country[ medalType+ 'Medals' ];
+  }
+
+  // Group countries by region
+  const groupedCountries = d3.group(countries, c => c.region);
+
+  /** @type {Region[]} */
+  const regions= [];
+  groupedCountries.forEach((group, name) => {
+    // Sort countries within each region by medal count
+    group.sort((a, b) => medalsOf(b) - medalsOf(a) );
+
+    // Count the medals per region
+    const medals= group.reduce( (sum, c) => sum+ medalsOf(c), 0 );
+    regions.push( new Region(name, medals, group) );
+  });
+
+  // Sort regions by their total medal counts
+  regions.sort((a, b) => b.medals- a.medals);
+
+  // Set the index of each country
+  let idx= 0;
+  regions.forEach( region => {
+    groupedCountries.get( region.name ).forEach( c => c.index= idx++ );
+  });
+
+  return regions;
 }

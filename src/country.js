@@ -128,3 +128,19 @@ export class Country {
 }
 
 
+export class Region {
+  /**
+   * @param {string} name 
+   * @param {number} medals 
+   * @param {Country[]} countries 
+   */
+  constructor( name, medals, countries ) {
+    this.name= name;
+    this.medals= medals;
+    this.countries= countries;  
+  }
+
+  get firstCountry() { return this.countries[0]; }
+  get lastCountry() { return this.countries[this.countries.length - 1]; }
+}
+
