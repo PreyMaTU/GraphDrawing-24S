@@ -13,6 +13,13 @@ npm i
 npm run start
 ```
 
+## Data Sources
+
+- `olympics.json` - The main data set [from the contest](https://mozart.diei.unipg.it/gdcontest/assets/2024/olympics.json)
+- `gdp_per_capita.csv` - [CIA Factbook](https://www.cia.gov/the-world-factbook/field/real-gdp-per-capita/country-comparison/)
+- `country_codes.csv` - [CIA Factbook](https://www.cia.gov/the-world-factbook/references/country-data-codes/)
+- `ioc_codes.csv` - [Wikipedia](https://simple.wikipedia.org/wiki/Comparison_of_IOC,_FIFA,_and_ISO_3166_country_codes) downloaded with [this CSV converter](https://wikitable2csv.ggor.de/).
+
 ## Authors
 
 This project is created by Group 1 of the Graph Drawing Algorithms
