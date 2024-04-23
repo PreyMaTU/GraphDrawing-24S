@@ -1,0 +1,26 @@
+{
+  "name": "graphdrawing-24s",
+  "version": "1.0.0",
+  "description": "Entry for the CG Graph Drawing Contest 2024",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PreyMaTU/GraphDrawing-24S.git"
+  },
+  "keywords": [
+    "Graph-Drawing-Contest",
+    "CG"
+  ],
+  "author": "Group-1",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PreyMaTU/GraphDrawing-24S/issues"
+  },
+  "homepage": "https://github.com/PreyMaTU/GraphDrawing-24S#readme",
+  "dependencies": {
+    "d3": "^7.9.0"
+  }
+}
