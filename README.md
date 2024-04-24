@@ -26,6 +26,11 @@ npm run start
   - [Europe](https://en.wikipedia.org/wiki/European_Olympic_Committees)
   - [Oceania](https://en.wikipedia.org/wiki/Oceania_National_Olympic_Committees)
 
+## Icons
+
+The icons of countries were taken from [@djaiss](https://github.com/djaiss)/[mapsicon](https://github.com/djaiss/mapsicon).
+The needed vector icons were extracted and renamed with their ISO 3166 Alpha2 codes.
+
 ## Authors
 
 This project is created by Group 1 of the Graph Drawing Algorithms
