@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import stripBom from 'strip-bom';
 import fs from 'node:fs/promises';
 
-import { Country, SportCategory, Medal, Region } from './country.js';
+import { CombinedCountry, Country, SportCategory, Medal, Region } from './country.js';
 
 async function readProjectRelativeFile( relativePath ) {
   return stripBom( await fs.readFile( new URL( relativePath, import.meta.url ), 'utf-8' ) );
@@ -166,13 +166,9 @@ export function orderIntoOrderedRegions( countries, medalType ) {
     throw Error(`Invalid medal type '${medalType}' for ordering`);
   }
 
-  function medalsOf( country ) {
-    return country[ medalType+ 'Medals' ];
-  }
-
   // Remove countries without any medals
   const unfilteredCount= countries.length;
-  countries= countries.filter( c => medalsOf(c) > 0 );
+  countries= countries.filter( c => c.medals(medalType) > 0 );
   console.log(`Filtered out ${unfilteredCount- countries.length} countries without '${medalType}' medals`);
 
   // Group countries by region
@@ -182,10 +178,10 @@ export function orderIntoOrderedRegions( countries, medalType ) {
   const regions= [];
   groupedCountries.forEach((group, name) => {
     // Sort countries within each region by medal count
-    group= group.sort((a, b) => medalsOf(b) - medalsOf(a) );
+    group= group.sort((a, b) => b.medals(medalType) - a.medals(medalType) );
 
     // Count the medals per region
-    const medals= group.reduce( (sum, c) => sum+ medalsOf(c), 0 );
+    const medals= group.reduce( (sum, c) => sum+ c.medals(medalType), 0 );
     regions.push( new Region(name, medals, group) );
   });
 
@@ -200,4 +196,32 @@ export function orderIntoOrderedRegions( countries, medalType ) {
 
 
   return { countries, regions };
+}
+
+/**
+ * @param {Country[]} countries 
+ * @param {number} count 
+ * @param {string} medalType 
+ */
+export function filterTopCountriesAndMergeRest( countries, count, medalType ) {
+  countries.sort( (a,b) => b.medals(medalType) - a.medals(medalType) );
+
+  const rest= countries.slice( count );
+  countries= countries.slice( 0, count );
+
+  const groupedCountries = d3.group(rest, c => c.region);
+  groupedCountries.forEach( (group, name) => {
+
+    // Calculate combined GDP
+    const avgGdp= group.reduce( (sum, c) => sum+ c.gdp, 0 ) / group.length;
+    const combinedCountry= new CombinedCountry( 'Combined '+ name, '', name, avgGdp, group );
+
+    combinedCountry.mergeWith( ...group );
+
+    countries.push( combinedCountry )
+  });
+
+  console.log( countries );
+
+  return countries;
 }

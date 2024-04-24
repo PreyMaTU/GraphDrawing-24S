@@ -101,6 +101,10 @@ export class Country {
     this.unitNormalY= 0;
   }
 
+  medals( type ) {
+    return this[ type+ 'Medals' ];
+  }
+
   /** @param {function(SportCategory, string):void} fn  */
   forEachCategory( fn ) {
     for( const category of Country.Categories ) {
@@ -126,10 +130,14 @@ export class Country {
     this.forEachCategory( category => category.orderMedals() );
   }
 
-  /** @param {Country} other  */
-  mergeWith( other ) {
-    this.forEachCategory( (category, categoryName) => category.mergeWith( other[categoryName] ) )
+  /** @param {Country[]} others  */
+  mergeWith( ...others ) {
+    for( const other of others ) {
+      this.forEachCategory( (category, categoryName) => category.mergeWith( other[categoryName] ) )
+    }
+
     this.countMedals();
+    this.orderMedals();
   }
 
   filledSportCategories() {
@@ -143,6 +151,20 @@ export class Country {
   }
 }
 
+export class CombinedCountry extends Country {
+  /**
+   * @param {string} name 
+   * @param {string} noc
+   * @param {string} region
+   * @param {number} gdp GPD per capita
+   * @param {Country[]} group
+   */
+  constructor(name, noc, region, gdp, group) {
+    super(name, noc, region, gdp);
+
+    this.group= group;
+  }
+}
 
 export class Region {
   /**

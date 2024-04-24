@@ -5,7 +5,8 @@ import {
   mergeIntoGdpData,
   mapIntoRegionTable,
   mergeIntoCountries,
-  orderIntoOrderedRegions
+  orderIntoOrderedRegions,
+  filterTopCountriesAndMergeRest
 } from './src/data.js';
 import { visualize } from './src/visualize.js';
 
@@ -14,7 +15,10 @@ async function prepareData() {
   const regionTable= mapIntoRegionTable( committees );
   const countryGdps= mergeIntoGdpData( gdp, codes, ioc );
   const countries= mergeIntoCountries( olympics, countryGdps, regionTable );
-  return orderIntoOrderedRegions( countries, 'gold' );
+
+  const medalType= 'gold';
+  const filteredCountries= filterTopCountriesAndMergeRest( countries, 40, medalType );
+  return orderIntoOrderedRegions( filteredCountries, medalType );
 }
 
 
