@@ -22,12 +22,6 @@ async function prepareData() {
 }
 
 
-/*console.log( countries.map( c => c.noc ).join() )
-console.log("\n")
-console.log( countries.map( c => c.name ).join() )
-console.log("\n")
-console.log( [...countryGdps.keys()].join() )*/
-
 const { countries, regions }= await prepareData();
 const body= visualize( countries, regions );
 const svgText= body.html();

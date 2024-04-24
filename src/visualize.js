@@ -100,7 +100,7 @@ export function visualize( countries, regions ) {
     .attr('y2', Constants.center.y)
     .style('stroke', 'lightgrey');
 
-
+  // Draw the bundled edges
   const edgeColors = d3.scaleOrdinal()
     .domain( ['shooting', 'fighting', 'cycling', 'swimming', 'gymnastics', 'athletics', 'equestrian', 'boating', 'other'  , 'racquets', 'teams'] )
     .range([  "#1f77b4" , "#ff7f0e" , "#2ca02c", "#d62728" , "#9467bd"   ,  "#8c564b" , "#e377c2"   , "#7f7f7f", "#bcbd22", "#17becf" , "#ff0e7e"]);
@@ -162,25 +162,6 @@ export function visualize( countries, regions ) {
     .attr('fill', d => centerPieColor(d.data.name) )
     .attr("stroke", "black")
     .style("stroke-width", "2px");
-
-  /*
-  // Draw edges for medals
-  const edges = svg.selectAll('.edge')
-    .data(data)
-    .enter().append('g')
-    .attr('class', 'edge');
-
-  edges.selectAll('line')
-    .data(d => d.medals.map(medal => ({ country: d, sport: medal.sport })))
-    .enter().append('line')
-    .attr('x1', (d, i) => getPosition(data.indexOf(d.country), data.length).x)
-    .attr('y1', (d, i) => getPosition(data.indexOf(d.country), data.length).y)
-    .attr('x2', center.x)
-    .attr('y2', center.y)
-    .style('stroke', 'gray');
-
-  console.log(  )
-  */
 
   return body;
 }

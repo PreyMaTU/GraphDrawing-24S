@@ -204,11 +204,14 @@ export function orderIntoOrderedRegions( countries, medalType ) {
  * @param {string} medalType 
  */
 export function filterTopCountriesAndMergeRest( countries, count, medalType ) {
+
+  // Split the data into top countries and rest
   countries.sort( (a,b) => b.medals(medalType) - a.medals(medalType) );
 
   const rest= countries.slice( count );
   countries= countries.slice( 0, count );
 
+  // Merge the rest into combined countries with summed medals, averaged GDP
   const groupedCountries = d3.group(rest, c => c.region);
   groupedCountries.forEach( (group, name) => {
 
@@ -216,12 +219,11 @@ export function filterTopCountriesAndMergeRest( countries, count, medalType ) {
     const avgGdp= group.reduce( (sum, c) => sum+ c.gdp, 0 ) / group.length;
     const combinedCountry= new CombinedCountry( 'Combined '+ name, '', name, avgGdp, group );
 
+    // Merge all countries in the group
     combinedCountry.mergeWith( ...group );
 
     countries.push( combinedCountry )
   });
-
-  console.log( countries );
 
   return countries;
 }
