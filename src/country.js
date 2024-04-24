@@ -52,6 +52,10 @@ export class SportCategory {
     this.silverMedals.push( ...other.silverMedals );
     this.bronzeMedals.push( ...other.bronzeMedals );
   }
+
+  get isEmpty() {
+    return (this.goldMedals.length+ this.silverMedals.length+ this.bronzeMedals.length) <= 0
+  }
 }
 
 export class Country {
@@ -93,6 +97,8 @@ export class Country {
     this.index= 0;
     this.x= 0;
     this.y= 0;
+    this.unitNormalX= 0;
+    this.unitNormalY= 0;
   }
 
   /** @param {function(SportCategory, string):void} fn  */
@@ -124,6 +130,16 @@ export class Country {
   mergeWith( other ) {
     this.forEachCategory( (category, categoryName) => category.mergeWith( other[categoryName] ) )
     this.countMedals();
+  }
+
+  filledSportCategories() {
+    return Country.Categories
+      .map( categoryName => ({
+        country: this,
+        /** @type {SportCategory} */
+        category: this[categoryName]
+      }) )
+      .filter( ({category}) => !category.isEmpty );
   }
 }
 

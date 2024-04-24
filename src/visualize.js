@@ -46,6 +46,13 @@ function computeCountryPositions( countries ) {
     country.x= circleCoordX( country.index, countries.length, gdpScale( gdp ) );
     country.y= circleCoordY( country.index, countries.length, gdpScale( gdp ) );
 
+    const vectorX= country.x - Constants.center.x;
+    const vectorY= country.y - Constants.center.y;
+    const vectorLength= Math.sqrt( vectorX* vectorX+ vectorY* vectorY );
+
+    country.unitNormalX= vectorY / vectorLength;
+    country.unitNormalY= -vectorX / vectorLength;
+
     // console.log( `${country.name} - GDP: ${country.gdp}, Index: ${country.index}, Position: (${country.x}, ${country.y})` )
   }
 
@@ -87,17 +94,36 @@ export function visualize( countries, regions ) {
   const regionSeparators= svg.selectAll('.region-line')
     .data( regions )
     .enter().append('line')
-    .attr('x1', r => circleCoordX( r.lastCountry.index, countries.length, Constants.radius) )
-    .attr('y1', r => circleCoordY( r.lastCountry.index, countries.length, Constants.radius) )
+    .attr('x1', r => circleCoordX( r.firstCountry.index, countries.length, Constants.radius) )
+    .attr('y1', r => circleCoordY( r.firstCountry.index, countries.length, Constants.radius) )
     .attr('x2', Constants.center.x)
     .attr('y2', Constants.center.y)
     .style('stroke', 'lightgrey');
+
+
+  const edgeColors = d3.scaleOrdinal()
+    .domain( ['shooting', 'fighting', 'cycling', 'swimming', 'gymnastics', 'athletics', 'equestrian', 'boating', 'other'  , 'racquets', 'teams'] )
+    .range([  "#1f77b4" , "#ff7f0e" , "#2ca02c", "#d62728" , "#9467bd"   ,  "#8c564b" , "#e377c2"   , "#7f7f7f", "#bcbd22", "#17becf" , "#ff0e7e"]);
+
+  const edges = svg.selectAll('.edge')
+    .data( countries )
+    .enter().append('g')
+    .attr('class', c => `edge ${c.noc}` );
+
+  edges.selectAll('line')
+    .data( c => c.filledSportCategories() )
+    .enter().append('line')
+    .attr('x1', (e, i, n) => e.country.x+ e.country.unitNormalX* (i - n.length / 2) )
+    .attr('y1', (e, i, n) => e.country.y+ e.country.unitNormalY* (i - n.length / 2) )
+    .attr('x2', (e, i, n) => Constants.center.x+ e.country.unitNormalX* (i - n.length / 2) )
+    .attr('y2', (e, i, n) => Constants.center.y+ e.country.unitNormalY* (i - n.length / 2) )
+    .style('stroke', e => edgeColors( e.category.name ) );
 
   // Draw nodes for countries
   const countryNodes = svg.selectAll('.country')
     .data( countries )
     .enter().append('g')
-    .attr('class', 'country');
+    .attr('class', c => `country ${c.noc}` );
 
   countryNodes.append('circle')
     .attr('cx', c => c.x )
