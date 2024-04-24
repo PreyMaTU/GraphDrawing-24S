@@ -142,5 +142,6 @@ export class Region {
 
   get firstCountry() { return this.countries[0]; }
   get lastCountry() { return this.countries[this.countries.length - 1]; }
+  get size() { return this.countries.length }
 }
 

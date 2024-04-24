@@ -12,6 +12,7 @@ const Constants= {
   height: 1000,
   margin: 50,
   centerMarginPercent: 0.3,
+  centerNodePercent: 0.5,
   
   // Computed
   radius: -1,
@@ -108,6 +109,33 @@ export function visualize( countries, regions ) {
     .attr('x', c => c.x + 10)
     .attr('y', c => c.y + 5)
     .text(c => c.name);
+
+
+  // Draw the center node
+  const centerNode = svg.append('g')
+    .attr('class', 'center-node')
+    .attr('transform', `translate(${Constants.center.x}, ${Constants.center.y})`);
+
+  const centerPie = d3.pie()
+      .value( r => r.size )
+      .sortValues( (a, b) => b.medals - a.medals );
+
+  const centerPieColor = d3.scaleOrdinal()
+    .domain( ['Europe', 'Asia', 'Africa', 'Oceania', 'America', 'No Region'] )
+    .range(["#0081C8", "#FCB131", "#000000", "#00A651", "#EE334E", "#FFFFFF"]);
+    
+  centerNode
+    .selectAll('.arc')
+    .data( centerPie(regions) )
+    .enter()
+    .append('path')
+    .attr('d', d3.arc()
+      .innerRadius(0)
+      .outerRadius( Constants.centerMargin * Constants.centerNodePercent )
+    )
+    .attr('fill', d => centerPieColor(d.data.name) )
+    .attr("stroke", "black")
+    .style("stroke-width", "2px");
 
   /*
   // Draw edges for medals
