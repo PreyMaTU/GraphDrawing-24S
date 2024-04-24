@@ -18,6 +18,9 @@ async function prepareData() {
 
   const medalType= 'gold';
   const filteredCountries= filterTopCountriesAndMergeRest( countries, 40, medalType );
+
+  await Promise.all( filteredCountries.map( c => c.loadIcon() ) );
+
   return orderIntoOrderedRegions( filteredCountries, medalType );
 }
 

@@ -136,6 +136,12 @@ export function visualize( countries, regions ) {
     .attr('y', c => c.y + 5)
     .text(c => c.name);
 
+  countryNodes
+    .selectAll( (c, i, n) => c.svgIcon ? [n[i]] : [] )
+    .append('g')
+    .attr('transform', c => `translate(${c.x}, ${c.y}) scale(0.025) translate(-800, -800)`)
+    .html( c => c.svgIcon );
+
 
   // Draw the center node
   const centerNode = svg.append('g')

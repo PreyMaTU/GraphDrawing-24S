@@ -1,4 +1,6 @@
 
+import { readProjectRelativeFile } from './data.js';
+
 export class Medal {
   /**
    * @param {string} athlete 
@@ -69,12 +71,14 @@ export class Country {
    * @param {string} noc
    * @param {string} region
    * @param {number} gdp GPD per capita
+   * @param {string} iso2
    */
-  constructor(name, noc, region, gdp) {
+  constructor(name, noc, region, gdp, iso2) {
     this.name= name;
     this.noc= noc;
     this.region= region;
     this.gdp= gdp;
+    this.iso2= iso2;
 
     this.totalMedals= 0;
     this.goldMedals= 0;
@@ -99,6 +103,7 @@ export class Country {
     this.y= 0;
     this.unitNormalX= 0;
     this.unitNormalY= 0;
+    this.svgIcon= null;
   }
 
   medals( type ) {
@@ -149,6 +154,18 @@ export class Country {
       }) )
       .filter( ({category}) => !category.isEmpty );
   }
+
+  async loadIcon() {
+    if( !this.iso2 || !this.iso2.length ) {
+      return;
+    }
+
+    try {
+      this.svgIcon= await readProjectRelativeFile(`../icons/${this.iso2}.svg`);
+    } catch( e ) {
+      console.error(`Could not load icon for country '${this.noc}' with ISO2 '${this.iso2}':`, e );
+    }
+  }
 }
 
 export class CombinedCountry extends Country {
@@ -157,10 +174,11 @@ export class CombinedCountry extends Country {
    * @param {string} noc
    * @param {string} region
    * @param {number} gdp GPD per capita
+   * @param {string} iso2
    * @param {Country[]} group
    */
-  constructor(name, noc, region, gdp, group) {
-    super(name, noc, region, gdp);
+  constructor(name, noc, region, gdp, iso2, group) {
+    super(name, noc, region, gdp, iso2);
 
     this.group= group;
   }

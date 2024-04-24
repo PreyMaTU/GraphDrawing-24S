@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 
 import { CombinedCountry, Country, SportCategory, Medal, Region } from './country.js';
 
-async function readProjectRelativeFile( relativePath ) {
+export async function readProjectRelativeFile( relativePath ) {
   return stripBom( await fs.readFile( new URL( relativePath, import.meta.url ), 'utf-8' ) );
 }
 
@@ -53,38 +53,43 @@ export function mergeIntoGdpData( gdp, codes, ioc ) {
   }
 
   // Create a map for conversion from iso code to CIA name
-  // ISO -> name
+  // ISO3 -> { name, ISO2 }
   const isoCodes= new Map();
   for( const row of codes ) {
-    isoCodes.set( row.GENC, row.Name );
+    const [iso2, iso3, isoNum]= row['ISO 3166'].split('|');
+    isoCodes.set( iso3, { name: row.Name, iso2 } );
   }
 
   // Join the the three data sets together to create a map
   // of IOC codes (NOC) to a countries name and GDP value
-  // NOC -> { name, value }
+  // NOC -> { name, iso2, value }
   const countriesByNoc= new Map();
   for( const row of ioc ) {
-    // NOC -> ISO
-    const { IOC: noc, ISO: iso }= row;
+    // NOC -> ISO3
+    const { IOC: noc, ISO: iso3 }= row;
 
     // No valid NOC
     if( !noc || !noc.trim().length ) {
       continue;
     }
 
-    // Get NOC -> ISO -> name
-    const ciaName= isoCodes.get( iso );
-    if( !ciaName ) {
-      console.error(`Could not find the name of country with ISO code '${iso}' / IOC '${noc}'`);
+    // Get NOC -> ISO3 -> name
+    const isoEntry= isoCodes.get( iso3 );
+    if( !isoEntry ) {
+      console.error(`Could not find the name of country with ISO code '${iso3}' / IOC '${noc}'`);
       continue;
     }
 
-    // Get NOC -> ISO -> name -> { name, value }
+    const { name: ciaName, iso2 }= isoEntry;
+
+    // Get NOC -> ISO3 -> name -> { name, value, iso2 }
     const country= countriesByName.get( ciaName );
     if( !country ) {
       console.error(`Could not find country GDP by country name '${ciaName}'`);
       continue;
     }
+
+    country.iso2= iso2;
 
     // Set NOC -> { name, value }
     countriesByNoc.set( noc, country );
@@ -112,7 +117,8 @@ export function mergeIntoCountries( olympics, countryGdps, regions ) {
         console.error(`Could not find a region for NOC '${node.noc}'`);
       }
 
-      const country= new Country( node.name, node.noc, region || 'No Region', gdpData ? gdpData.value : 0 );
+      const { value: gdp, iso2 }= gdpData || { value: 0, iso2: '' };
+      const country= new Country( node.name, node.noc, region || 'No Region', gdp, iso2 );
       countries.set( node.noc, country );
     }
   }
@@ -217,7 +223,7 @@ export function filterTopCountriesAndMergeRest( countries, count, medalType ) {
 
     // Calculate combined GDP
     const avgGdp= group.reduce( (sum, c) => sum+ c.gdp, 0 ) / group.length;
-    const combinedCountry= new CombinedCountry( 'Combined '+ name, '', name, avgGdp, group );
+    const combinedCountry= new CombinedCountry( 'Combined '+ name, '', name, avgGdp, '', group );
 
     // Merge all countries in the group
     combinedCountry.mergeWith( ...group );
