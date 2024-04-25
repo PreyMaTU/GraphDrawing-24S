@@ -223,7 +223,7 @@ export function filterTopCountriesAndMergeRest( countries, count, medalType ) {
 
     // Calculate combined GDP
     const avgGdp= group.reduce( (sum, c) => sum+ c.gdp, 0 ) / group.length;
-    const combinedCountry= new CombinedCountry( 'Combined '+ name, '', name, avgGdp, '', group );
+    const combinedCountry= new CombinedCountry( 'Combined '+ name, '', name, avgGdp, Region.fakeIso2[ name ] || '', group );
 
     // Merge all countries in the group
     combinedCountry.mergeWith( ...group );

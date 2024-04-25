@@ -185,6 +185,14 @@ export class CombinedCountry extends Country {
 }
 
 export class Region {
+  static fakeIso2= {
+    'Africa': '_af',
+    'America': '_am',
+    'Asia': '_as',
+    'Europe': '_eu',
+    'Oceania': '_oc'
+  };
+
   /**
    * @param {string} name 
    * @param {number} medals 
