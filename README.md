@@ -31,6 +31,15 @@ npm run start
 The icons of countries were taken from [@djaiss](https://github.com/djaiss)/[mapsicon](https://github.com/djaiss/mapsicon).
 The needed vector icons were extracted and renamed with their ISO 3166 Alpha2 codes.
 
+The icons of continents are edited versions of Public Domain images taken from [SVG Silh](https://svgsilh.com/).
+(Links: [Africa][Africa], [Europe][Europe], [Oceania][Oceania], [Asia][Asia], [America][America] (only parts used))
+
+[Africa]: https://svgsilh.com/image/153088.html
+[Europe]: https://svgsilh.com/image/2239723.html
+[Oceania]: https://svgsilh.com/image/151644.html
+[Asia]: https://svgsilh.com/image/151642.html
+[America]: https://svgsilh.com/image/306338.html
+
 ## Authors
 
 This project is created by Group 1 of the Graph Drawing Algorithms
