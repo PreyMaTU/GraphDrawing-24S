@@ -50,7 +50,6 @@ course at TU Wien in 2024S. The authors are listed below.
 - Raphael Kunert
 - Michael Eickmeyer
 
-
 ## License
 
 This project's source code is licensed under the MIT license.
