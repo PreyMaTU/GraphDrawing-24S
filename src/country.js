@@ -26,21 +26,27 @@ export class SportCategory {
     this.bronzeMedals = [];
   }
 
-  addMedal(type, medal) {
+  _medalArrayByType(type) {
     switch (type) {
       case 'Gold':
-        this.goldMedals.push(medal);
-        break;
+        return this.goldMedals;
       case 'Silver':
-        this.silverMedals.push(medal);
-        break;
+        return this.silverMedals;
       case 'Bronze':
-        this.bronzeMedals.push(medal);
-        break;
+        return this.bronzeMedals;
       default:
-        console.error(`Cannot add unknown medal type '${type}'`);
-        break;
+        return null;
     }
+  }
+
+  addMedal(type, medal) {
+    const medals = this._medalArrayByType(type);
+    if (!medals) {
+      console.error(`Cannot add unknown medal type '${type}'`);
+      return;
+    }
+
+    medals.push(medal);
   }
 
   orderMedals() {
@@ -62,6 +68,16 @@ export class SportCategory {
 
   get isEmpty() {
     return this.goldMedals.length + this.silverMedals.length + this.bronzeMedals.length <= 0;
+  }
+
+  firstMedal(type) {
+    const medals = this._medalArrayByType(type);
+    return medals && medals.length ? medals[0] : null;
+  }
+
+  lastMedal(type) {
+    const medals = this._medalArrayByType(type);
+    return medals && medals.length ? medals[medals.length - 1] : null;
   }
 }
 
@@ -165,6 +181,18 @@ export class Country {
       /** @type {SportCategory} */
       category: this[categoryName],
     })).filter(({ category }) => !category.isEmpty);
+  }
+
+  getFirstAndLastYear(medalType) {
+    let firstYear = Number.MAX_SAFE_INTEGER,
+      lastYear = 0;
+
+    this.forEachCategory(cat => {
+      firstYear = Math.min(firstYear, cat.firstMedal(medalType)?.year || firstYear);
+      lastYear = Math.max(lastYear, cat.lastMedal(medalType)?.year || lastYear);
+    });
+
+    return { firstYear, lastYear };
   }
 
   async loadIcon() {

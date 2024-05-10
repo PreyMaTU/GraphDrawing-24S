@@ -12,6 +12,7 @@ const Constants = {
   margin: 50,
   centerMarginPercent: 0.3,
   centerNodePercent: 0.5,
+  centerTimeTicksPercent: 0.75,
 
   // Computed
   radius: -1,
@@ -63,10 +64,38 @@ function computeCountryPositions(countries) {
 }
 
 /**
+ * @param {Country[]} countries
+ * @param {'Gold'|'Silver'|'Bronze'} medalType
+ */
+function computeTickYearArray(countries, medalType) {
+  // Find the first and last year an olympic game happened for the filtered
+  // countries and medal types
+  const { firstYear, lastYear } = countries
+    .map(c => c.getFirstAndLastYear(medalType))
+    .reduce(
+      ({ firstYear, lastYear }, c) => ({
+        firstYear: Math.min(firstYear, c.firstYear),
+        lastYear: Math.max(lastYear, c.lastYear),
+      }),
+      { firstYear: Number.MAX_SAFE_INTEGER, lastYear: 0 }
+    );
+
+  // Create an array of all years in between and including the 
+  // first and last year
+  const tickYears = Array.from(
+    { length: Math.floor(1 + (lastYear - firstYear) / 4) },
+    (_, i) => firstYear + i * 4
+  );
+
+  return { firstYear, lastYear, tickYears };
+}
+
+/**
  *  @param {Country[]} countries
  *  @param {Region[]} regions
+ * @param {'Gold'|'Silver'|'Bronze'} medalType
  */
-export function visualize(countries, regions) {
+export function visualize(countries, regions, medalType) {
   // Compute constants
   Constants.radius = Math.min(Constants.width, Constants.height) / 2 - Constants.margin;
   Constants.center = { x: Constants.width / 2, y: Constants.height / 2 };
@@ -145,8 +174,59 @@ export function visualize(countries, regions) {
     .append('g')
     .attr('class', c => `edge ${c.noc}`);
 
+  const { firstYear, lastYear, tickYears } = computeTickYearArray(countries, medalType);
+  const tickScaleX = d3.scaleLinear().domain([firstYear, lastYear]);
+  const tickScaleY = d3.scaleLinear().domain([firstYear, lastYear]);
+
+  function countryTicks(country) {
+    // Compute the offsets to the bundle to draw the tick line across it
+    const halfWidth = country.filledSportCategories().length / 2 + 2;
+    const xlen = country.unitNormalX * halfWidth;
+    const ylen = country.unitNormalY * halfWidth;
+
+    // Compute the starting position for the first tick based on the country
+    // position and center margins
+    const xdiff = country.x - Constants.center.x;
+    const ydiff = country.y - Constants.center.y;
+    const length = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
+    const startX =
+      Constants.center.x +
+      (xdiff / length) * Constants.centerMargin * Constants.centerTimeTicksPercent;
+    const startY =
+      Constants.center.y +
+      (ydiff / length) * Constants.centerMargin * Constants.centerTimeTicksPercent;
+
+    tickScaleX.range([startX, country.x]);
+    tickScaleY.range([startY, country.y]);
+
+    // Make an array of positions on the bundle for the ticks
+    return tickYears.map(year => {
+      const x = tickScaleX(year);
+      const y = tickScaleY(year);
+
+      return { x, y, xlen, ylen };
+    });
+  }
+
   edges
-    .selectAll('line')
+    .selectAll('.ticks')
+    .data(c => [c])
+    .enter()
+    .append('g')
+    .attr('class', () => 'ticks')
+    .selectAll('.tick')
+    .data(countryTicks)
+    .enter()
+    .append('line')
+    .attr('x1', t => t.x + t.xlen)
+    .attr('y1', t => t.y + t.ylen)
+    .attr('x2', t => t.x - t.xlen)
+    .attr('y2', t => t.y - t.ylen)
+    .style('stroke', () => 'gray')
+    .style('stroke-width', () => '0.5');
+
+  edges
+    .selectAll('.bundle')
     .data(c => c.filledSportCategories())
     .enter()
     .append('line')
