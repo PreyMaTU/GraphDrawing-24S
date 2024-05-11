@@ -274,7 +274,7 @@ export function visualize(countries, regions, medalType) {
     .attr('cy', Constants.center.y)
     .attr('r', e => e.country.vectorLength)
     .attr('fr', Constants.centerMargin * Constants.centerNodePercent)
-    .attr('id', e => `gradient-${e.country.noc}-${e.category.name}`)
+    .attr('id', e => `gradient-${e.country.iso2}-${e.category.name}`)
     .selectAll('stop')
     .data(e => [
       // Color stop that connects the line to the center node
@@ -300,7 +300,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', (e, i, n) => e.country.y + e.country.unitNormalY * (i - n.length / 2))
     .attr('x2', (e, i, n) => Constants.center.x + e.country.unitNormalX * (i - n.length / 2))
     .attr('y2', (e, i, n) => Constants.center.y + e.country.unitNormalY * (i - n.length / 2))
-    .style('stroke', e => `url(#gradient-${e.country.noc}-${e.category.name})`);
+    .style('stroke', e => `url(#gradient-${e.country.iso2}-${e.category.name})`);
   //.style('stroke', e => edgeColors(e.category.name));
 
   // Draw nodes for countries
