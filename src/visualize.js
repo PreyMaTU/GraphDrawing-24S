@@ -17,6 +17,29 @@ const Constants = {
   edgeBaseColorIntensity: 0.15,
   countryNameOffset: 20,
 
+  categoryColors: {
+    shooting: '#1f77b4',
+    fighting: '#ff7f0e',
+    cycling: '#2ca02c',
+    swimming: '#d62728',
+    gymnastics: '#9467bd',
+    athletics: '#8c564b',
+    equestrian: '#e377c2',
+    boating: '#7f7f7f',
+    other: '#bcbd22',
+    racquets: '#17becf',
+    teams: '#ff0e7e',
+  },
+
+  regionColors: {
+    'Europe': '#0081C8',
+    'Asia': '#FCB131',
+    'Africa': '#000000',
+    'Oceania': '#00A651',
+    'America': '#EE334E',
+    'No Region': '#FFFFFF',
+  },
+
   // Computed
   radius: -1,
   center: null,
@@ -146,37 +169,13 @@ export function visualize(countries, regions, medalType) {
   // Draw the bundled edges
   const edgeColors = d3
     .scaleOrdinal()
-    .domain([
-      'shooting',
-      'fighting',
-      'cycling',
-      'swimming',
-      'gymnastics',
-      'athletics',
-      'equestrian',
-      'boating',
-      'other',
-      'racquets',
-      'teams',
-    ])
-    .range([
-      '#1f77b4',
-      '#ff7f0e',
-      '#2ca02c',
-      '#d62728',
-      '#9467bd',
-      '#8c564b',
-      '#e377c2',
-      '#7f7f7f',
-      '#bcbd22',
-      '#17becf',
-      '#ff0e7e',
-    ]);
+    .domain( Object.keys(Constants.categoryColors) )
+    .range( Object.keys(Constants.categoryColors).map( name => Constants.categoryColors[name] ) );
 
   const centerPieColor = d3
     .scaleOrdinal()
-    .domain(['Europe', 'Asia', 'Africa', 'Oceania', 'America', 'No Region'])
-    .range(['#0081C8', '#FCB131', '#000000', '#00A651', '#EE334E', '#FFFFFF']);
+    .domain( Object.keys(Constants.regionColors) )
+    .range( Object.keys(Constants.regionColors).map( name => Constants.regionColors[name] ) );
 
   const edges = svg
     .selectAll('.edge')
