@@ -18,15 +18,19 @@ export class SportCategory {
   constructor(name) {
     this.name = name;
 
-    /** @type {Medal[]} */
-    this.goldMedals = [];
-    /** @type {Medal[]} */
-    this.silverMedals = [];
-    /** @type {Medal[]} */
-    this.bronzeMedals = [];
+    /** @type {Map<number, Medal[]>} */
+    this.goldMedals = new Map();
+    /** @type {Map<number, Medal[]>} */
+    this.silverMedals = new Map();
+    /** @type {Map<number, Medal[]>} */
+    this.bronzeMedals = new Map();
+
+    this.goldMedalCount = 0;
+    this.silverMedalCount = 0;
+    this.bronzeMedalCount = 0;
   }
 
-  _medalArrayByType(type) {
+  _medalMapByType(type) {
     switch (type) {
       case 'Gold':
         return this.goldMedals;
@@ -40,44 +44,88 @@ export class SportCategory {
   }
 
   addMedal(type, medal) {
-    const medals = this._medalArrayByType(type);
+    const medals = this._medalMapByType(type);
     if (!medals) {
       console.error(`Cannot add unknown medal type '${type}'`);
       return;
     }
 
-    medals.push(medal);
-  }
-
-  orderMedals() {
-    function comparator(a, b) {
-      return a.year - b.year;
+    let array = medals.get(medal.year);
+    if (!array) {
+      medals.set(medal.year, (array = []));
     }
 
-    this.goldMedals.sort(comparator);
-    this.silverMedals.sort(comparator);
-    this.bronzeMedals.sort(comparator);
+    array.push(medal);
   }
 
   /** @param {SportCategory} other */
   mergeWith(other) {
-    this.goldMedals.push(...other.goldMedals);
-    this.silverMedals.push(...other.silverMedals);
-    this.bronzeMedals.push(...other.bronzeMedals);
+    function mergeMap(ownedMap, otherMap) {
+      otherMap.forEach((medals, year) => {
+        const ownedArray = ownedMap.get(year);
+        if (ownedArray) {
+          ownedArray.push(...medals);
+        } else {
+          ownedMap.set(year, medals);
+        }
+      });
+    }
+
+    mergeMap(this.goldMedals, other.goldMedals);
+    mergeMap(this.silverMedals, other.silverMedals);
+    mergeMap(this.bronzeMedals, other.bronzeMedals);
+  }
+
+  countMedals() {
+    this.goldMedalCount = 0;
+    this.silverMedalCount = 0;
+    this.bronzeMedalCount = 0;
+
+    this.goldMedals.forEach(medalArray => (this.goldMedalCount += medalArray.length));
+    this.silverMedals.forEach(medalArray => (this.silverMedalCount += medalArray.length));
+    this.bronzeMedals.forEach(medalArray => (this.bronzeMedalCount += medalArray.length));
   }
 
   get isEmpty() {
-    return this.goldMedals.length + this.silverMedals.length + this.bronzeMedals.length <= 0;
+    return this.goldMedals.size + this.silverMedals.size + this.bronzeMedals.size <= 0;
   }
 
-  firstMedal(type) {
-    const medals = this._medalArrayByType(type);
-    return medals && medals.length ? medals[0] : null;
+  firstMedalYear(type) {
+    const medals = this._medalMapByType(type);
+    if (!medals) {
+      return 0;
+    }
+
+    let firstYear = Number.MAX_SAFE_INTEGER;
+    medals.forEach((_, year) => (firstYear = Math.min(firstYear, year)));
+    return firstYear;
   }
 
-  lastMedal(type) {
-    const medals = this._medalArrayByType(type);
-    return medals && medals.length ? medals[medals.length - 1] : null;
+  lastMedalYear(type) {
+    const medals = this._medalMapByType(type);
+    if (!medals) {
+      return 0;
+    }
+
+    let lastYear = 0;
+    medals.forEach((_, year) => (lastYear = Math.max(lastYear, year)));
+    return lastYear;
+  }
+
+  maxMedalCountPerGame(type) {
+    const medals = this._medalMapByType(type);
+    if (!medals) {
+      return 0;
+    }
+
+    let maxMedals = 0;
+    medals.forEach(medalArray => (maxMedals = Math.max(maxMedals, medalArray.length)));
+    return maxMedals;
+  }
+
+  medalCount(type, year) {
+    const medals = this._medalMapByType(type);
+    return medals?.get(year)?.length || 0;
   }
 }
 
@@ -131,9 +179,14 @@ export class Country {
     this.index = 0;
     this.x = 0;
     this.y = 0;
+    this.vectorLength = 0;
     this.unitNormalX = 0;
     this.unitNormalY = 0;
     this.svgIcon = null;
+
+    // Cached values
+    /** @type {{ country: Country, category: SportCategory }[]?} */
+    this.cachedFilledSportCategories = null;
   }
 
   medals(type) {
@@ -153,16 +206,14 @@ export class Country {
     this.bronzeMedals = 0;
 
     this.forEachCategory(category => {
-      this.goldMedals += category.goldMedals.length;
-      this.silverMedals += category.silverMedals.length;
-      this.bronzeMedals += category.bronzeMedals.length;
+      category.countMedals();
+
+      this.goldMedals += category.goldMedalCount;
+      this.silverMedals += category.silverMedalCount;
+      this.bronzeMedals += category.bronzeMedalCount;
     });
 
     this.totalMedals = this.goldMedals + this.silverMedals + this.bronzeMedals;
-  }
-
-  orderMedals() {
-    this.forEachCategory(category => category.orderMedals());
   }
 
   /** @param {Country[]} others  */
@@ -172,15 +223,21 @@ export class Country {
     }
 
     this.countMedals();
-    this.orderMedals();
   }
 
-  filledSportCategories() {
-    return Country.Categories.map(categoryName => ({
+  filledSportCategories(recompute = false) {
+    if (!recompute && this.cachedFilledSportCategories) {
+      return this.cachedFilledSportCategories;
+    }
+
+    this.cachedFilledSportCategories = Country.Categories.map(categoryName => ({
       country: this,
-      /** @type {SportCategory} */
       category: this[categoryName],
     })).filter(({ category }) => !category.isEmpty);
+
+    Object.freeze(this.cachedFilledSportCategories);
+
+    return this.cachedFilledSportCategories;
   }
 
   getFirstAndLastYear(medalType) {
@@ -188,11 +245,20 @@ export class Country {
       lastYear = 0;
 
     this.forEachCategory(cat => {
-      firstYear = Math.min(firstYear, cat.firstMedal(medalType)?.year || firstYear);
-      lastYear = Math.max(lastYear, cat.lastMedal(medalType)?.year || lastYear);
+      firstYear = Math.min(firstYear, cat.firstMedalYear(medalType));
+      lastYear = Math.max(lastYear, cat.lastMedalYear(medalType));
     });
 
     return { firstYear, lastYear };
+  }
+
+  getMaxMedalCountPerGame(medalType) {
+    let maxMedals = 0;
+    this.forEachCategory(
+      cat => (maxMedals = Math.max(maxMedals, cat.maxMedalCountPerGame(medalType)))
+    );
+
+    return maxMedals;
   }
 
   async loadIcon() {

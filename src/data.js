@@ -138,7 +138,8 @@ export function mergeIntoCountries(olympics, countryGdps, regions) {
 
     // Iterate over the link's attributes
     for (const attr of link.attr) {
-      const medal = new Medal(attr.athlete.name, attr.year, attr.sport);
+      const year = parseInt(attr.year);
+      const medal = new Medal(attr.athlete.name, year, attr.sport);
       category.addMedal(attr.medal, medal);
     }
   }
@@ -149,7 +150,6 @@ export function mergeIntoCountries(olympics, countryGdps, regions) {
   const countryArray = [...countries.values()];
   for (const country of countryArray) {
     country.countMedals();
-    country.orderMedals();
   }
 
   return countryArray;

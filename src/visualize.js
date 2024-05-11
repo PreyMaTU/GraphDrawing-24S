@@ -13,6 +13,8 @@ const Constants = {
   centerMarginPercent: 0.3,
   centerNodePercent: 0.5,
   centerTimeTicksPercent: 0.75,
+  backgroundColor: '#ffffff',
+  edgeBaseColorIntensity: 0.3,
 
   // Computed
   radius: -1,
@@ -54,6 +56,7 @@ function computeCountryPositions(countries) {
     const vectorY = country.y - Constants.center.y;
     const vectorLength = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
 
+    country.vectorLength = vectorLength;
     country.unitNormalX = vectorY / vectorLength;
     country.unitNormalY = -vectorX / vectorLength;
 
@@ -80,7 +83,7 @@ function computeTickYearArray(countries, medalType) {
       { firstYear: Number.MAX_SAFE_INTEGER, lastYear: 0 }
     );
 
-  // Create an array of all years in between and including the 
+  // Create an array of all years in between and including the
   // first and last year
   const tickYears = Array.from(
     { length: Math.floor(1 + (lastYear - firstYear) / 4) },
@@ -167,6 +170,11 @@ export function visualize(countries, regions, medalType) {
       '#ff0e7e',
     ]);
 
+  const centerPieColor = d3
+    .scaleOrdinal()
+    .domain(['Europe', 'Asia', 'Africa', 'Oceania', 'America', 'No Region'])
+    .range(['#0081C8', '#FCB131', '#000000', '#00A651', '#EE334E', '#FFFFFF']);
+
   const edges = svg
     .selectAll('.edge')
     .data(countries)
@@ -188,7 +196,7 @@ export function visualize(countries, regions, medalType) {
     // position and center margins
     const xdiff = country.x - Constants.center.x;
     const ydiff = country.y - Constants.center.y;
-    const length = Math.sqrt(xdiff * xdiff + ydiff * ydiff);
+    const length = country.vectorLength;
     const startX =
       Constants.center.x +
       (xdiff / length) * Constants.centerMargin * Constants.centerTimeTicksPercent;
@@ -225,6 +233,64 @@ export function visualize(countries, regions, medalType) {
     .style('stroke', () => 'gray')
     .style('stroke-width', () => '0.5');
 
+  /** @param {Country} country */
+  function filledSportCategoriesWithGradientScale(country) {
+    const fr = Constants.centerMargin * Constants.centerNodePercent;
+    const ticksBegin = Constants.centerMargin * Constants.centerTimeTicksPercent;
+    const clearRadius = ticksBegin - fr;
+    const usableGradientLength = country.vectorLength - fr;
+    const ticksRangeBegin = clearRadius / usableGradientLength;
+
+    const maxMedalCount = country.getMaxMedalCountPerGame(medalType);
+
+    // Helper function to mix the background color with the category's color
+    function mixedBaseColor(category) {
+      return d3
+        .scaleLinear()
+        .domain([0, 1])
+        .range([Constants.backgroundColor, edgeColors(category.name)])(
+        Constants.edgeBaseColorIntensity
+      );
+    }
+
+    // Compute scales for the categories
+    return country.filledSportCategories().map(e => ({
+      ...e,
+      positionScale: d3.scaleLinear().domain([firstYear, lastYear]).range([ticksRangeBegin, 1]),
+      colorScale: d3
+        .scaleLinear()
+        .domain([0, maxMedalCount])
+        .range([mixedBaseColor(e.category), edgeColors(e.category.name)]),
+    }));
+  }
+
+  edges
+    .selectAll('.gradient')
+    .data(filledSportCategoriesWithGradientScale)
+    .enter()
+    .append('radialGradient')
+    .attr('gradientUnits', 'userSpaceOnUse')
+    .attr('cx', Constants.center.x)
+    .attr('cy', Constants.center.y)
+    .attr('r', e => e.country.vectorLength)
+    .attr('fr', Constants.centerMargin * Constants.centerNodePercent)
+    .attr('id', e => `gradient-${e.country.noc}-${e.category.name}`)
+    .selectAll('stop')
+    .data(e => [
+      // Color stop that connects the line to the center node
+      { offset: '0%', color: centerPieColor(e.country.region) },
+
+      // Color stops for each game based on the number of medals won
+      ...tickYears.map(year => ({
+        offset: e.positionScale(year),
+        color: e.colorScale(e.category.medalCount(medalType, year)),
+      })),
+    ])
+    .enter()
+    .append('stop')
+    .attr('offset', d => d.offset)
+    .attr('stop-color', d => d.color);
+
   edges
     .selectAll('.bundle')
     .data(c => c.filledSportCategories())
@@ -234,7 +300,8 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', (e, i, n) => e.country.y + e.country.unitNormalY * (i - n.length / 2))
     .attr('x2', (e, i, n) => Constants.center.x + e.country.unitNormalX * (i - n.length / 2))
     .attr('y2', (e, i, n) => Constants.center.y + e.country.unitNormalY * (i - n.length / 2))
-    .style('stroke', e => edgeColors(e.category.name));
+    .style('stroke', e => `url(#gradient-${e.country.noc}-${e.category.name})`);
+  //.style('stroke', e => edgeColors(e.category.name));
 
   // Draw nodes for countries
   const countryNodes = svg
@@ -277,11 +344,6 @@ export function visualize(countries, regions, medalType) {
     .pie()
     .value(r => r.size)
     .sortValues((a, b) => b.medals - a.medals);
-
-  const centerPieColor = d3
-    .scaleOrdinal()
-    .domain(['Europe', 'Asia', 'Africa', 'Oceania', 'America', 'No Region'])
-    .range(['#0081C8', '#FCB131', '#000000', '#00A651', '#EE334E', '#FFFFFF']);
 
   centerNode
     .selectAll('.arc')
