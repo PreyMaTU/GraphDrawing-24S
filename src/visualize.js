@@ -14,7 +14,8 @@ const Constants = {
   centerNodePercent: 0.5,
   centerTimeTicksPercent: 0.75,
   backgroundColor: '#ffffff',
-  edgeBaseColorIntensity: 0.3,
+  edgeBaseColorIntensity: 0.15,
+  countryNameOffset: 20,
 
   // Computed
   radius: -1,
@@ -57,6 +58,8 @@ function computeCountryPositions(countries) {
     const vectorLength = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
 
     country.vectorLength = vectorLength;
+    country.unitX= vectorX / vectorLength;
+    country.unitY= vectorY / vectorLength;
     country.unitNormalX = vectorY / vectorLength;
     country.unitNormalY = -vectorX / vectorLength;
 
@@ -194,15 +197,12 @@ export function visualize(countries, regions, medalType) {
 
     // Compute the starting position for the first tick based on the country
     // position and center margins
-    const xdiff = country.x - Constants.center.x;
-    const ydiff = country.y - Constants.center.y;
-    const length = country.vectorLength;
     const startX =
       Constants.center.x +
-      (xdiff / length) * Constants.centerMargin * Constants.centerTimeTicksPercent;
+      country.unitX * Constants.centerMargin * Constants.centerTimeTicksPercent;
     const startY =
       Constants.center.y +
-      (ydiff / length) * Constants.centerMargin * Constants.centerTimeTicksPercent;
+      country.unitY * Constants.centerMargin * Constants.centerTimeTicksPercent;
 
     tickScaleX.range([startX, country.x]);
     tickScaleY.range([startY, country.y]);
@@ -324,9 +324,18 @@ export function visualize(countries, regions, medalType) {
 
   countryNodes
     .append('text')
-    .attr('x', c => c.x + 10)
-    .attr('y', c => c.y + 5)
-    .text(c => c.name);
+    .attr('x', c => c.x + c.unitX* Constants.countryNameOffset)
+    .attr('y', c => c.y + c.unitY* Constants.countryNameOffset)
+    .attr('text-anchor', c => c.x >= Constants.center.x ? 'start' : 'end')
+    .attr('dominant-baseline', 'central')
+    .attr('transform', c => {
+      const flipAngle= c.x >= Constants.center.x ? 0 : 180;
+      const angle= Math.atan2(c.unitY, c.unitX) * 180 / Math.PI + flipAngle;
+      const x= c.x + c.unitX* Constants.countryNameOffset;
+      const y= c.y + c.unitY* Constants.countryNameOffset;
+      return `rotate(${angle}, ${x}, ${y})`;
+    })
+    .text(c => c.displayName);
 
   countryNodes
     .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))

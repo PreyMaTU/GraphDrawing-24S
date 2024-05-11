@@ -9,12 +9,13 @@ export async function readProjectRelativeFile(relativePath) {
 }
 
 export async function loadDatasets() {
-  const [olympics, gdp, codes, ioc, committees] = await Promise.all([
+  const [olympics, gdp, codes, ioc, committees, displayNames] = await Promise.all([
     readProjectRelativeFile('../data/olympics.json'),
     readProjectRelativeFile('../data/gdp_per_capita.csv'),
     readProjectRelativeFile('../data/country_codes.csv'),
     readProjectRelativeFile('../data/ioc_codes.csv'),
     readProjectRelativeFile('../data/olympic_committees.csv'),
+    readProjectRelativeFile('../data/country_display_names.csv'),
   ]);
 
   return {
@@ -23,6 +24,7 @@ export async function loadDatasets() {
     codes: d3.csvParse(codes),
     ioc: d3.csvParse(ioc),
     committees: d3.csvParse(committees),
+    displayNames: d3.csvParse(displayNames),
   };
 }
 
@@ -97,7 +99,7 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
   return countriesByNoc;
 }
 
-export function mergeIntoCountries(olympics, countryGdps, regions) {
+export function mergeIntoCountries(olympics, countryGdps, regions, displayNames) {
   /** @type {Map<string, Country>} */
   const countries = new Map();
 
@@ -143,6 +145,11 @@ export function mergeIntoCountries(olympics, countryGdps, regions) {
       category.addMedal(attr.medal, medal);
     }
   }
+
+  // Add shorter custom display names
+  const displayNamesMap= new Map();
+  displayNames.forEach(({noc, display_name}) => displayNamesMap.set(noc, display_name) );
+  countries.forEach( c => c.displayName= displayNamesMap.get( c.noc ) );
 
   // Handle some (ugly) special cases
   fixDataProblems(countries);

@@ -158,6 +158,8 @@ export class Country {
     this.gdp = gdp;
     this.iso2 = iso2;
 
+    this.customDisplayName= '';
+
     this.totalMedals = 0;
     this.goldMedals = 0;
     this.silverMedals = 0;
@@ -180,6 +182,8 @@ export class Country {
     this.x = 0;
     this.y = 0;
     this.vectorLength = 0;
+    this.unitX = 0;
+    this.unitY = 0;
     this.unitNormalX = 0;
     this.unitNormalY = 0;
     this.svgIcon = null;
@@ -188,6 +192,9 @@ export class Country {
     /** @type {{ country: Country, category: SportCategory }[]?} */
     this.cachedFilledSportCategories = null;
   }
+
+  set displayName( name ) { this.customDisplayName= name; }
+  get displayName() { return this.customDisplayName || this.name; }
 
   medals(type) {
     return this[type + 'Medals'];

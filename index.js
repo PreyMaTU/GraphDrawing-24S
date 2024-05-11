@@ -10,10 +10,10 @@ import {
 import { visualize } from './src/visualize.js';
 
 async function loadData() {
-  const { olympics, gdp, codes, ioc, committees } = await loadDatasets();
+  const { olympics, gdp, codes, ioc, committees, displayNames} = await loadDatasets();
   const regionTable = mapIntoRegionTable(committees);
   const countryGdps = mergeIntoGdpData(gdp, codes, ioc);
-  const countries = mergeIntoCountries(olympics, countryGdps, regionTable);
+  const countries = mergeIntoCountries(olympics, countryGdps, regionTable, displayNames);
 
   return countries;
 }
