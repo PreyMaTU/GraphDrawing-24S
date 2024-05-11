@@ -32,11 +32,11 @@ const Constants = {
   },
 
   regionColors: {
-    'Europe': '#0081C8',
-    'Asia': '#FCB131',
-    'Africa': '#000000',
-    'Oceania': '#00A651',
-    'America': '#EE334E',
+    Europe: '#0081C8',
+    Asia: '#FCB131',
+    Africa: '#000000',
+    Oceania: '#00A651',
+    America: '#EE334E',
     'No Region': '#FFFFFF',
   },
 
@@ -81,8 +81,8 @@ function computeCountryPositions(countries) {
     const vectorLength = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
 
     country.vectorLength = vectorLength;
-    country.unitX= vectorX / vectorLength;
-    country.unitY= vectorY / vectorLength;
+    country.unitX = vectorX / vectorLength;
+    country.unitY = vectorY / vectorLength;
     country.unitNormalX = vectorY / vectorLength;
     country.unitNormalY = -vectorX / vectorLength;
 
@@ -169,13 +169,13 @@ export function visualize(countries, regions, medalType) {
   // Draw the bundled edges
   const edgeColors = d3
     .scaleOrdinal()
-    .domain( Object.keys(Constants.categoryColors) )
-    .range( Object.keys(Constants.categoryColors).map( name => Constants.categoryColors[name] ) );
+    .domain(Object.keys(Constants.categoryColors))
+    .range(Object.keys(Constants.categoryColors).map(name => Constants.categoryColors[name]));
 
   const centerPieColor = d3
     .scaleOrdinal()
-    .domain( Object.keys(Constants.regionColors) )
-    .range( Object.keys(Constants.regionColors).map( name => Constants.regionColors[name] ) );
+    .domain(Object.keys(Constants.regionColors))
+    .range(Object.keys(Constants.regionColors).map(name => Constants.regionColors[name]));
 
   const edges = svg
     .selectAll('.edge')
@@ -323,15 +323,15 @@ export function visualize(countries, regions, medalType) {
 
   countryNodes
     .append('text')
-    .attr('x', c => c.x + c.unitX* Constants.countryNameOffset)
-    .attr('y', c => c.y + c.unitY* Constants.countryNameOffset)
-    .attr('text-anchor', c => c.x >= Constants.center.x ? 'start' : 'end')
+    .attr('x', c => c.x + c.unitX * Constants.countryNameOffset)
+    .attr('y', c => c.y + c.unitY * Constants.countryNameOffset)
+    .attr('text-anchor', c => (c.x >= Constants.center.x ? 'start' : 'end'))
     .attr('dominant-baseline', 'central')
     .attr('transform', c => {
-      const flipAngle= c.x >= Constants.center.x ? 0 : 180;
-      const angle= Math.atan2(c.unitY, c.unitX) * 180 / Math.PI + flipAngle;
-      const x= c.x + c.unitX* Constants.countryNameOffset;
-      const y= c.y + c.unitY* Constants.countryNameOffset;
+      const flipAngle = c.x >= Constants.center.x ? 0 : 180;
+      const angle = (Math.atan2(c.unitY, c.unitX) * 180) / Math.PI + flipAngle;
+      const x = c.x + c.unitX * Constants.countryNameOffset;
+      const y = c.y + c.unitY * Constants.countryNameOffset;
       return `rotate(${angle}, ${x}, ${y})`;
     })
     .text(c => c.displayName);

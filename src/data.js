@@ -147,9 +147,9 @@ export function mergeIntoCountries(olympics, countryGdps, regions, displayNames)
   }
 
   // Add shorter custom display names
-  const displayNamesMap= new Map();
-  displayNames.forEach(({noc, display_name}) => displayNamesMap.set(noc, display_name) );
-  countries.forEach( c => c.displayName= displayNamesMap.get( c.noc ) );
+  const displayNamesMap = new Map();
+  displayNames.forEach(({ noc, display_name }) => displayNamesMap.set(noc, display_name));
+  countries.forEach(c => (c.displayName = displayNamesMap.get(c.noc)));
 
   // Handle some (ugly) special cases
   fixDataProblems(countries);

@@ -158,7 +158,7 @@ export class Country {
     this.gdp = gdp;
     this.iso2 = iso2;
 
-    this.customDisplayName= '';
+    this.customDisplayName = '';
 
     this.totalMedals = 0;
     this.goldMedals = 0;
@@ -193,8 +193,12 @@ export class Country {
     this.cachedFilledSportCategories = null;
   }
 
-  set displayName( name ) { this.customDisplayName= name; }
-  get displayName() { return this.customDisplayName || this.name; }
+  set displayName(name) {
+    this.customDisplayName = name;
+  }
+  get displayName() {
+    return this.customDisplayName || this.name;
+  }
 
   medals(type) {
     return this[type + 'Medals'];
