@@ -25,6 +25,7 @@ npm run start
   - [Asia](https://en.wikipedia.org/wiki/Olympic_Council_of_Asia)
   - [Europe](https://en.wikipedia.org/wiki/European_Olympic_Committees)
   - [Oceania](https://en.wikipedia.org/wiki/Oceania_National_Olympic_Committees)
+- `country_display_names.csv` - Custom names for countries with names too bulky to display
 
 ## Icons
 
