@@ -38,63 +38,60 @@ export function mapIntoRegionTable(committees) {
   return regionsByNoc;
 }
 
+/**
+ * Merges the 3 provided datasets into one.
+ * 
+ * @param {*} gdp   The gdp dataset (i.e., gdp_per_capita.csv).
+ * @param {*} codes The country code dataset (i.e., country_codes.csv).
+ * @param {*} ioc   The ioc dataset (i.e., ioc_codes.csv).
+ * @returns A map in the format [IOC_code (NOC)] -> [{ full_country_name, gdp_per_cap, iso2 }]
+ */
 export function mergeIntoGdpData(gdp, codes, ioc) {
-  // Create a map from CIA GDP values
-  // name -> {name, value}
-  const countriesByName = new Map();
-  for (const row of gdp) {
-    const { name, value: valueText } = row;
-
-    const value = parseInt(valueText.replace(/[^\d]/g, ''));
-    if (Number.isNaN(value)) {
-      console.error(`Could not parse GDP value for '${name}' with '${valueText}'`);
-    }
-
-    countriesByName.set(name, { name, value });
-  }
-
-  // Create a map for conversion from iso code to CIA name
-  // ISO3 -> { name, ISO2 }
-  const isoCodes = new Map();
-  for (const row of codes) {
-    const [iso2, iso3, isoNum] = row['ISO 3166'].split('|');
-    isoCodes.set(iso3, { name: row.Name, iso2 });
-  }
-
-  // Join the the three data sets together to create a map
-  // of IOC codes (NOC) to a countries name and GDP value
-  // NOC -> { name, iso2, value }
+  console.time('Data merge');
   const countriesByNoc = new Map();
+  
+  // Populate the map with the ioc code as key and the country name as first value
   for (const row of ioc) {
-    // NOC -> ISO3
-    const { IOC: noc, ISO: iso3 } = row;
+    const { country: name, IOC: noc, ISO: iso3 } = row;
 
-    // No valid NOC
+    // No valid NOC -- but we can ignore this because athletes from overseas territories without an IOC code always represent the respective "main" country anyways, so only the ones with an existing code are of interest to us.
     if (!noc || !noc.trim().length) {
       continue;
     }
 
-    // Get NOC -> ISO3 -> name
-    const isoEntry = isoCodes.get(iso3);
-    if (!isoEntry) {
-      console.error(`Could not find the name of country with ISO code '${iso3}' / IOC '${noc}'`);
-      continue;
-    }
-
-    const { name: ciaName, iso2 } = isoEntry;
-
-    // Get NOC -> ISO3 -> name -> { name, value, iso2 }
-    const country = countriesByName.get(ciaName);
-    if (!country) {
-      console.error(`Could not find country GDP by country name '${ciaName}'`);
-      continue;
-    }
-
-    country.iso2 = iso2;
-
-    // Set NOC -> { name, value }
-    countriesByNoc.set(noc, country);
+    countriesByNoc.set(iso3, { name: name });
   }
+
+  // Find iso2 for each country in the map (NOTE: Do we really need this?)
+  for (const row of codes) {
+    const [iso2, iso3, isoNum] = row['ISO 3166'].split('|');
+
+    const entry = countriesByNoc.get(iso3);
+    if (!entry) {
+      continue;
+    }
+
+    entry.iso2 = iso2;
+    countriesByNoc.set(iso3, entry);
+  }
+
+  // Find gdp per capita based on the country name
+  for (const row of gdp) {
+    const gdpPerCap = Object.values(row).reverse().find(el => isNumeric(el));
+    const iso3 = row['Country Code'];
+
+    const entry = countriesByNoc.get(iso3);
+    if (!entry) {
+      continue;
+    }
+
+    entry.value = Math.round(parseFloat(gdpPerCap));
+    countriesByNoc.set(iso3, entry);
+  }
+
+  console.timeEnd('Data merge');
+
+  console.log(countriesByNoc);
 
   return countriesByNoc;
 }
@@ -160,14 +157,6 @@ export function mergeIntoCountries(olympics, countryGdps, regions, displayNames)
   }
 
   return countryArray;
-}
-
-export function fixDataProblems(countries) {
-  const fakeRussia = countries.get('ROC');
-  const realRussia = countries.get('RUS');
-
-  realRussia.mergeWith(fakeRussia);
-  countries.delete(fakeRussia.noc);
 }
 
 /**  @param {Country[]} countries */
@@ -243,3 +232,24 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType) {
 
   return countries;
 }
+
+/* --- LOCAL HELPER FUNCTIONS --- */
+function formatName(name) {
+  if (name.includes(',')) {
+    name = name.normalize(); // Try to get rid of diacritics etc.
+    const frags = name.split(',').map(f => f.trim()); // Split...
+    name = frags[1] + ' ' + frags[0]; // ...and swap
+  }
+
+  return name;
+}
+
+function fixDataProblems(countries) {
+  const fakeRussia = countries.get('ROC');
+  const realRussia = countries.get('RUS');
+
+  realRussia.mergeWith(fakeRussia);
+  countries.delete(fakeRussia.noc);
+}
+
+const isNumeric = num => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num);

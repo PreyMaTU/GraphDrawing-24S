@@ -120,8 +120,8 @@ function computeTickYearArray(countries, medalType) {
 }
 
 /**
- *  @param {Country[]} countries
- *  @param {Region[]} regions
+ * @param {Country[]} countries
+ * @param {Region[]} regions
  * @param {'Gold'|'Silver'|'Bronze'} medalType
  */
 export function visualize(countries, regions, medalType) {
