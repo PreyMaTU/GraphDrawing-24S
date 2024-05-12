@@ -49,11 +49,11 @@ export function mapIntoRegionTable(committees) {
 export function mergeIntoGdpData(gdp, codes, ioc) {
   const countriesByIso = new Map();
 
-  // Populate the map with the iso code as key and the country name as first value
+  // Populate the map with the iso code as key and the country name as value (noc needed later)
   for (const row of ioc) {
     const { country: name, IOC: noc, ISO: iso3 } = row;
 
-    // No valid NOC -- but we can ignore this because athletes from overseas territories without an IOC code 
+    // No valid NOC -- but we can ignore this because athletes from overseas territories without an IOC code
     // always represent the respective "main" country anyways, so only the ones with an existing code are of
     // interest to us.
     if (!noc || !noc.trim().length) {
@@ -95,14 +95,12 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
   // Swap iso3 and noc around, we want noc to be the key
   const countriesByNoc = new Map();
   for (const value of countriesByIso.values()) {
-    countriesByNoc.set(value.ioc, { 
+    countriesByNoc.set(value.ioc, {
       name: value.name,
       value: value.value,
-      iso2: value.iso2
+      iso2: value.iso2,
     });
   }
-
-  console.log(countriesByNoc);
 
   return countriesByNoc;
 }
@@ -247,11 +245,37 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType) {
 /* --- LOCAL HELPER FUNCTIONS --- */
 
 function fixDataProblems(countries) {
-  const fakeRussia = countries.get('ROC');
-  const realRussia = countries.get('RUS');
+  // Hard-coded merges. Read as ROC -> RUS (ROC is merged into RUS)
+  const merges = [
+    ['ROC', 'RUS'], // https://en.wikipedia.org/wiki/Russian_Olympic_Committee
+    ['AHO', 'NED'], // https://en.wikipedia.org/wiki/Netherlands_Antilles_at_the_Olympics
+    ['BOH', 'CZE'], // https://de.wikipedia.org/wiki/Olympische_Geschichte_B%C3%B6hmens
+  ];
 
-  realRussia.mergeWith(fakeRussia);
-  countries.delete(fakeRussia.noc);
+  // ROC = Russian Olympic Committee
+  // URS = Soviet Union
+  // BOH = Bohemia
+  // GDR = Germany (Soviet)
+  // ANZ = Australia + New Zealand
+  // YUG = Yugoslavia
+  // IOA = Independent
+  // WIF = West Indies Federation (Jamaica, Antigua, Barbados, etc.)
+  // FRG = Germany (Western)
+  // SCG = Serbia & Montenegro
+  // UAR = United Arab Republic (Egypt)
+  // EUN = United Team (Former Soviet Republics, 1992)
+  // AHO = Dutch Antilles (2012 IOA, then dutch or aruba)
+  // TCH = Czechoslovakia
+
+  for (const mergePair of merges) {
+    const [a, b] = mergePair;
+
+    const oldCountry = countries.get(a);
+    const newCountry = countries.get(b);
+
+    oldCountry.mergeWith(newCountry);
+    countries.delete(oldCountry.noc);
+  }
 }
 
 const isNumeric = num =>
