@@ -40,16 +40,15 @@ export function mapIntoRegionTable(committees) {
 
 /**
  * Merges the 3 provided datasets into one.
- * 
+ *
  * @param {*} gdp   The gdp dataset (i.e., gdp_per_capita.csv).
  * @param {*} codes The country code dataset (i.e., country_codes.csv).
  * @param {*} ioc   The ioc dataset (i.e., ioc_codes.csv).
  * @returns A map in the format [IOC_code (NOC)] -> [{ full_country_name, gdp_per_cap, iso2 }]
  */
 export function mergeIntoGdpData(gdp, codes, ioc) {
-  console.time('Data merge');
   const countriesByNoc = new Map();
-  
+
   // Populate the map with the ioc code as key and the country name as first value
   for (const row of ioc) {
     const { country: name, IOC: noc, ISO: iso3 } = row;
@@ -77,7 +76,9 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
 
   // Find gdp per capita based on the country name
   for (const row of gdp) {
-    const gdpPerCap = Object.values(row).reverse().find(el => isNumeric(el));
+    const gdpPerCap = Object.values(row)
+      .reverse()
+      .find(el => isNumeric(el));
     const iso3 = row['Country Code'];
 
     const entry = countriesByNoc.get(iso3);
@@ -88,8 +89,6 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
     entry.value = Math.round(parseFloat(gdpPerCap));
     countriesByNoc.set(iso3, entry);
   }
-
-  console.timeEnd('Data merge');
 
   console.log(countriesByNoc);
 
@@ -252,4 +251,5 @@ function fixDataProblems(countries) {
   countries.delete(fakeRussia.noc);
 }
 
-const isNumeric = num => (typeof(num) === 'number' || typeof(num) === "string" && num.trim() !== '') && !isNaN(num);
+const isNumeric = num =>
+  (typeof num === 'number' || (typeof num === 'string' && num.trim() !== '')) && !isNaN(num);
