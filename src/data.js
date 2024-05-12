@@ -47,31 +47,33 @@ export function mapIntoRegionTable(committees) {
  * @returns A map in the format [IOC_code (NOC)] -> [{ full_country_name, gdp_per_cap, iso2 }]
  */
 export function mergeIntoGdpData(gdp, codes, ioc) {
-  const countriesByNoc = new Map();
+  const countriesByIso = new Map();
 
-  // Populate the map with the ioc code as key and the country name as first value
+  // Populate the map with the iso code as key and the country name as first value
   for (const row of ioc) {
     const { country: name, IOC: noc, ISO: iso3 } = row;
 
-    // No valid NOC -- but we can ignore this because athletes from overseas territories without an IOC code always represent the respective "main" country anyways, so only the ones with an existing code are of interest to us.
+    // No valid NOC -- but we can ignore this because athletes from overseas territories without an IOC code 
+    // always represent the respective "main" country anyways, so only the ones with an existing code are of
+    // interest to us.
     if (!noc || !noc.trim().length) {
       continue;
     }
 
-    countriesByNoc.set(iso3, { name: name });
+    countriesByIso.set(iso3, { name: name, ioc: noc });
   }
 
   // Find iso2 for each country in the map (NOTE: Do we really need this?)
   for (const row of codes) {
     const [iso2, iso3, isoNum] = row['ISO 3166'].split('|');
 
-    const entry = countriesByNoc.get(iso3);
+    const entry = countriesByIso.get(iso3);
     if (!entry) {
       continue;
     }
 
     entry.iso2 = iso2;
-    countriesByNoc.set(iso3, entry);
+    countriesByIso.set(iso3, entry);
   }
 
   // Find gdp per capita based on the country name
@@ -81,13 +83,23 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
       .find(el => isNumeric(el));
     const iso3 = row['Country Code'];
 
-    const entry = countriesByNoc.get(iso3);
+    const entry = countriesByIso.get(iso3);
     if (!entry) {
       continue;
     }
 
     entry.value = Math.round(parseFloat(gdpPerCap));
-    countriesByNoc.set(iso3, entry);
+    countriesByIso.set(iso3, entry);
+  }
+
+  // Swap iso3 and noc around, we want noc to be the key
+  const countriesByNoc = new Map();
+  for (const value of countriesByIso.values()) {
+    countriesByNoc.set(value.ioc, { 
+      name: value.name,
+      value: value.value,
+      iso2: value.iso2
+    });
   }
 
   console.log(countriesByNoc);
@@ -233,15 +245,6 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType) {
 }
 
 /* --- LOCAL HELPER FUNCTIONS --- */
-function formatName(name) {
-  if (name.includes(',')) {
-    name = name.normalize(); // Try to get rid of diacritics etc.
-    const frags = name.split(',').map(f => f.trim()); // Split...
-    name = frags[1] + ' ' + frags[0]; // ...and swap
-  }
-
-  return name;
-}
 
 function fixDataProblems(countries) {
   const fakeRussia = countries.get('ROC');
