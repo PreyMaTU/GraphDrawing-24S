@@ -277,6 +277,7 @@ function fixDataProblems(countries) {
     ['AHO', 'NED'], // https://en.wikipedia.org/wiki/Netherlands_Antilles_at_the_Olympics
     ['BOH', 'CZE'], // https://de.wikipedia.org/wiki/Olympische_Geschichte_B%C3%B6hmens
     ['FRG', 'GER'], // West Germany continued as Germany, the DDR was consumed
+    ['UAR', 'EGY'], // United Arab Republic is now Egypt according to https://en.wikipedia.org/wiki/List_of_IOC_country_codes
   ];
 
   // ROC = Russian Olympic Committee
