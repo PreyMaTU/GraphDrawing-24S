@@ -18,9 +18,13 @@ export async function loadDatasets() {
     readProjectRelativeFile('../data/country_display_names.csv'),
   ]);
 
+  // Drop the header row and convert it into an indexing object
+  const gdpRows= d3.csvParseRows(gdp);
+  gdpRows.columns= gdpRows.shift().reduce( (obj, columnName, idx) => { obj[columnName]= idx; return obj; }, {});
+
   return {
     olympics: JSON.parse(olympics),
-    gdp: d3.csvParse(gdp),
+    gdp: gdpRows,
     codes: d3.csvParse(codes),
     ioc: d3.csvParse(ioc),
     committees: d3.csvParse(committees),
@@ -53,53 +57,49 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
   for (const row of ioc) {
     const { country: name, IOC: noc, ISO: iso3 } = row;
 
-    // No valid NOC -- but we can ignore this because athletes from overseas territories without an IOC code
-    // always represent the respective "main" country anyways, so only the ones with an existing code are of
-    // interest to us.
+    // Skip (iso3 -> name) rows of countries without valid NOC
     if (!noc || !noc.trim().length) {
       continue;
     }
 
-    countriesByIso.set(iso3, { name: name, ioc: noc });
+    countriesByIso.set(iso3, { name: name, ioc: noc, iso2: null, value: -1 });
   }
 
-  // Find iso2 for each country in the map (NOTE: Do we really need this?)
+  // Find iso2 for each country in the map (for icons)
   for (const row of codes) {
     const [iso2, iso3, isoNum] = row['ISO 3166'].split('|');
 
+    // Set the iso2 field on each entry
     const entry = countriesByIso.get(iso3);
-    if (!entry) {
-      continue;
+    if( entry ) {
+      entry.iso2= iso2;
     }
-
-    entry.iso2 = iso2;
-    countriesByIso.set(iso3, entry);
   }
 
   // Find gdp per capita based on the country name
+  const gdpCountryCodeColumnIndex= gdp.columns['Country Code'];
   for (const row of gdp) {
-    const gdpPerCap = Object.values(row)
-      .reverse()
-      .find(el => isNumeric(el));
-    const iso3 = row['Country Code'];
+    // Find the last non-empty column
+    const gdpPerCap = row.findLast( column => column && column.trim().length );
+    const iso3 = row[ gdpCountryCodeColumnIndex ];
 
     const entry = countriesByIso.get(iso3);
     if (!entry) {
       continue;
     }
 
+    // Try to parse the gdp value into a number
     entry.value = Math.round(parseFloat(gdpPerCap));
-    countriesByIso.set(iso3, entry);
+    if( Number.isNaN(entry.value) ) {
+      console.error(`Could not parse GDP value for ISO '${entry.iso2}' / IOC '${entry.ioc}' with value: '${gdpPerCap}'`);
+      entry.value= -1;
+    }
   }
 
   // Swap iso3 and noc around, we want noc to be the key
   const countriesByNoc = new Map();
-  for (const value of countriesByIso.values()) {
-    countriesByNoc.set(value.ioc, {
-      name: value.name,
-      value: value.value,
-      iso2: value.iso2,
-    });
+  for (const {ioc, name, value, iso2} of countriesByIso.values()) {
+    countriesByNoc.set(ioc, { name, value, iso2 });
   }
 
   return countriesByNoc;
@@ -277,6 +277,3 @@ function fixDataProblems(countries) {
     countries.delete(oldCountry.noc);
   }
 }
-
-const isNumeric = num =>
-  (typeof num === 'number' || (typeof num === 'string' && num.trim() !== '')) && !isNaN(num);
