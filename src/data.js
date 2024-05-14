@@ -20,8 +20,11 @@ export async function loadDatasets() {
   ]);
 
   // Drop the header row and convert it into an indexing object
-  const gdpRows= d3.csvParseRows(gdp);
-  gdpRows.columns= gdpRows.shift().reduce( (obj, columnName, idx) => { obj[columnName]= idx; return obj; }, {});
+  const gdpRows = d3.csvParseRows(gdp);
+  gdpRows.columns = gdpRows.shift().reduce((obj, columnName, idx) => {
+    obj[columnName] = idx;
+    return obj;
+  }, {});
 
   return {
     olympics: JSON.parse(olympics),
@@ -73,17 +76,17 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
 
     // Set the iso2 field on each entry
     const entry = countriesByIso.get(iso3);
-    if( entry ) {
-      entry.iso2= iso2;
+    if (entry) {
+      entry.iso2 = iso2;
     }
   }
 
   // Find gdp per capita based on the country name
-  const gdpCountryCodeColumnIndex= gdp.columns['Country Code'];
+  const gdpCountryCodeColumnIndex = gdp.columns['Country Code'];
   for (const row of gdp) {
     // Find the last non-empty column
-    const gdpPerCap = row.findLast( column => column && column.trim().length );
-    const iso3 = row[ gdpCountryCodeColumnIndex ];
+    const gdpPerCap = row.findLast(column => column && column.trim().length);
+    const iso3 = row[gdpCountryCodeColumnIndex];
 
     const entry = countriesByIso.get(iso3);
     if (!entry) {
@@ -92,15 +95,17 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
 
     // Try to parse the gdp value into a number
     entry.value = Math.round(parseFloat(gdpPerCap));
-    if( Number.isNaN(entry.value) ) {
-      console.error(`Could not parse GDP value for ISO '${entry.iso2}' / IOC '${entry.ioc}' with value: '${gdpPerCap}'`);
-      entry.value= -1;
+    if (Number.isNaN(entry.value)) {
+      console.error(
+        `Could not parse GDP value for ISO '${entry.iso2}' / IOC '${entry.ioc}' with value: '${gdpPerCap}'`
+      );
+      entry.value = -1;
     }
   }
 
   // Swap iso3 and noc around, we want noc to be the key
   const countriesByNoc = new Map();
-  for (const {ioc, name, value, iso2} of countriesByIso.values()) {
+  for (const { ioc, name, value, iso2 } of countriesByIso.values()) {
     countriesByNoc.set(ioc, { name, value, iso2 });
   }
 
@@ -154,7 +159,7 @@ export function mergeIntoCountries(olympics, countryGdps, regions, displayNames,
     }
   }
 
-  setAdditionalCountryFields( countries, displayNames, defunct );
+  setAdditionalCountryFields(countries, displayNames, defunct);
 
   // Handle some (ugly) special cases
   fixDataProblems(countries);
@@ -167,23 +172,23 @@ export function mergeIntoCountries(olympics, countryGdps, regions, displayNames,
   return countryArray;
 }
 
-function setAdditionalCountryFields( countries, displayNames, defunct ) {
+function setAdditionalCountryFields(countries, displayNames, defunct) {
   // Add shorter custom display names
   const displayNamesMap = new Map();
   displayNames.forEach(({ noc, display_name }) => displayNamesMap.set(noc, display_name));
   countries.forEach(c => (c.displayName = displayNamesMap.get(c.noc)));
 
   // Set the year of dissolving for defunct countries
-  defunct.forEach( ({noc, defunct}) => {
-    const country= countries.get(noc);
-    if( country) {
-      country.defunctSince= defunct; 
+  defunct.forEach(({ noc, defunct }) => {
+    const country = countries.get(noc);
+    if (country) {
+      country.defunctSince = defunct;
     }
   });
 }
 
 /**  @param {Country[]} countries */
-export function orderIntoOrderedRegions(countries, medalType, orderByRegions= false ) {
+export function orderIntoOrderedRegions(countries, medalType, orderByRegions = false) {
   if (['bronze', 'silver', 'gold', 'total'].indexOf(medalType) < 0) {
     throw Error(`Invalid medal type '${medalType}' for ordering`);
   }
@@ -214,7 +219,7 @@ export function orderIntoOrderedRegions(countries, medalType, orderByRegions= fa
 
   // Set the index of each country
   let idx = 0;
-  if( orderByRegions ) {
+  if (orderByRegions) {
     regions.forEach(region => {
       region.countries.forEach(c => (c.index = idx++));
     });
@@ -243,8 +248,8 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType) {
   const groupedCountries = d3.group(rest, c => c.region);
   groupedCountries.forEach((group, name) => {
     // When the group only has a single country, just add the country itself
-    if( group.length < 2 ) {
-      countries.push( group[0] );
+    if (group.length < 2) {
+      countries.push(group[0]);
       return;
     }
 

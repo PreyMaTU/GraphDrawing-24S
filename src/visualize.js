@@ -171,19 +171,25 @@ export function visualize(countries, regions, medalType) {
     .style('stroke', 'lightgrey');*/
 
   // Draw linear regression as a spiral
-  const spiralRegression= d3Regression.regressionLinear()
-    .x( c => c.index )
-    .y( c => gdpScale( c.gdp ) )( countries );
+  const spiralRegression = d3Regression
+    .regressionLinear()
+    .x(c => c.index)
+    .y(c => gdpScale(c.gdp))(countries);
 
-  const spiral= d3.line()
-    .x( c => circleCoordX(c.index, countries.length, spiralRegression.a* c.index+ spiralRegression.b ) )
-    .y( c => circleCoordY(c.index, countries.length, spiralRegression.a* c.index+ spiralRegression.b ) )
-    .curve( d3.curveBasis );
+  const spiral = d3
+    .line()
+    .x(c =>
+      circleCoordX(c.index, countries.length, spiralRegression.a * c.index + spiralRegression.b)
+    )
+    .y(c =>
+      circleCoordY(c.index, countries.length, spiralRegression.a * c.index + spiralRegression.b)
+    )
+    .curve(d3.curveBasis);
 
   svg
     .append('path')
     .attr('class', '.spiral')
-    .attr("d", spiral(countries))
+    .attr('d', spiral(countries))
     .attr('stroke-width', '2.5')
     .attr('stroke', Constants.spiralColor)
     .attr('fill', 'none');
@@ -304,7 +310,10 @@ export function visualize(countries, regions, medalType) {
       // Color stops for each game based on the number of medals won
       ...tickYears.map(year => ({
         offset: e.positionScale(year),
-        color: year < e.country.defunctSince ? e.colorScale(e.category.medalCount(medalType, year)) : Constants.defunctColor,
+        color:
+          year < e.country.defunctSince ?
+            e.colorScale(e.category.medalCount(medalType, year))
+          : Constants.defunctColor,
       })),
     ])
     .enter()
