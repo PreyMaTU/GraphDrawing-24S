@@ -41,8 +41,11 @@ The icons of continents are edited versions of Public Domain images taken from [
 [Asia]: https://svgsilh.com/image/151642.html
 [America]: https://svgsilh.com/image/306338.html
 
-The icon for Yugoslavia was taken from [Wikipedia](https://en.m.wikipedia.org/wiki/File:Yugoslavia_silhouette_grey.svg) where
-it was released into the public domain. The image was edited to fit the icon format.
+The icon for some defunct countries were taken from Wikimedia Commons and edited to fit the icon format.
+- [Czechoslovakia](https://commons.wikimedia.org/wiki/File:Flag-map_of_Czechoslovakia.svg) (CC BY-SA 3.0)
+- [East Germany](https://en.wikipedia.org/wiki/File:Flag_map_of_East_Germany_(1949%E2%80%931959).svg) (CC BY-SA 3.0)
+- [Soviet Union](https://commons.wikimedia.org/wiki/File:Map-Flag_of_the_Soviet_Union.svg) (CC BY-SA 3.0)
+- [Yugoslavia](https://en.m.wikipedia.org/wiki/File:Yugoslavia_silhouette_grey.svg) (public domain)
 
 ## Authors
 
