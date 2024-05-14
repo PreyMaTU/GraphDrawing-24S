@@ -40,6 +40,8 @@ const Constants = {
     'No Region': '#FFFFFF',
   },
 
+  defunctColor: '#BBB',
+
   // Computed
   radius: -1,
   center: null,
@@ -282,7 +284,7 @@ export function visualize(countries, regions, medalType) {
       // Color stops for each game based on the number of medals won
       ...tickYears.map(year => ({
         offset: e.positionScale(year),
-        color: e.colorScale(e.category.medalCount(medalType, year)),
+        color: year < e.country.defunctSince ? e.colorScale(e.category.medalCount(medalType, year)) : Constants.defunctColor,
       })),
     ])
     .enter()

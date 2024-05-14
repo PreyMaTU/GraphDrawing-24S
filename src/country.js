@@ -177,6 +177,8 @@ export class Country {
     this.racquets = new SportCategory('racquets');
     this.teams = new SportCategory('teams');
 
+    this.defunctSince= Number.MAX_SAFE_INTEGER;
+
     // Data used for visualization
     this.index = 0;
     this.x = 0;
