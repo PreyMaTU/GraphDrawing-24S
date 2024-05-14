@@ -242,6 +242,12 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType) {
   // Merge the rest into combined countries with summed medals, averaged GDP
   const groupedCountries = d3.group(rest, c => c.region);
   groupedCountries.forEach((group, name) => {
+    // When the group only has a single country, just add the country itself
+    if( group.length < 2 ) {
+      countries.push( group[0] );
+      return;
+    }
+
     // Calculate combined GDP
     const avgGdp = group.reduce((sum, c) => sum + c.gdp, 0) / group.length;
     const combinedCountry = new CombinedCountry(
