@@ -278,7 +278,7 @@ export class Country {
     }
 
     try {
-      this.svgIcon = await readProjectRelativeFile(`../icons/${this.iso2}.svg`);
+      this.svgIcon = await readProjectRelativeFile(`../icons/${this.iso2.toLowerCase()}.svg`);
     } catch (e) {
       console.error(`Could not load icon for country '${this.noc}' with ISO2 '${this.iso2}':`, e);
     }
