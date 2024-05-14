@@ -157,7 +157,7 @@ export function visualize(countries, regions, medalType) {
     .style('stroke', 'lightgrey')
     .style('fill', 'none');
 
-  const regionSeparators = svg
+  /*const regionSeparators = svg
     .selectAll('.region-line')
     .data(regions)
     .enter()
@@ -166,7 +166,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', r => circleCoordY(r.firstCountry.index, countries.length, Constants.radius))
     .attr('x2', Constants.center.x)
     .attr('y2', Constants.center.y)
-    .style('stroke', 'lightgrey');
+    .style('stroke', 'lightgrey');*/
 
   // Draw the bundled edges
   const edgeColors = d3

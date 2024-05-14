@@ -183,7 +183,7 @@ function setAdditionalCountryFields( countries, displayNames, defunct ) {
 }
 
 /**  @param {Country[]} countries */
-export function orderIntoOrderedRegions(countries, medalType) {
+export function orderIntoOrderedRegions(countries, medalType, orderByRegions= false ) {
   if (['bronze', 'silver', 'gold', 'total'].indexOf(medalType) < 0) {
     throw Error(`Invalid medal type '${medalType}' for ordering`);
   }
@@ -214,9 +214,15 @@ export function orderIntoOrderedRegions(countries, medalType) {
 
   // Set the index of each country
   let idx = 0;
-  regions.forEach(region => {
-    region.countries.forEach(c => (c.index = idx++));
-  });
+  if( orderByRegions ) {
+    regions.forEach(region => {
+      region.countries.forEach(c => (c.index = idx++));
+    });
+  } else {
+    countries
+      .sort((a, b) => b.medals(medalType) - a.medals(medalType))
+      .forEach(c => (c.index = idx++));
+  }
 
   return { countries, regions };
 }
