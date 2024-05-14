@@ -250,6 +250,7 @@ function fixDataProblems(countries) {
     ['ROC', 'RUS'], // https://en.wikipedia.org/wiki/Russian_Olympic_Committee
     ['AHO', 'NED'], // https://en.wikipedia.org/wiki/Netherlands_Antilles_at_the_Olympics
     ['BOH', 'CZE'], // https://de.wikipedia.org/wiki/Olympische_Geschichte_B%C3%B6hmens
+    ['FRG', 'GER'], // West Germany continued as Germany, the DDR was consumed
   ];
 
   // ROC = Russian Olympic Committee
