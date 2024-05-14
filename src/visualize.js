@@ -7,9 +7,9 @@ import { JSDOM } from 'jsdom';
  */
 
 const Constants = {
-  width: 1000,
-  height: 1000,
-  margin: 50,
+  width: 1050,
+  height: 1050,
+  margin: 100,
   centerMarginPercent: 0.3,
   centerNodePercent: 0.5,
   centerTimeTicksPercent: 0.75,
