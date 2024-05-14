@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { JSDOM } from 'jsdom';
+import * as d3Regression from 'd3-regression';
 
 /**
  * @typedef {import('./country.js').Country} Country
@@ -40,6 +41,7 @@ const Constants = {
     'No Region': '#FFFFFF',
   },
 
+  spiralColor: '#c098f7',
   defunctColor: '#BBB',
 
   // Computed
@@ -167,6 +169,24 @@ export function visualize(countries, regions, medalType) {
     .attr('x2', Constants.center.x)
     .attr('y2', Constants.center.y)
     .style('stroke', 'lightgrey');*/
+
+  // Draw linear regression as a spiral
+  const spiralRegression= d3Regression.regressionLinear()
+    .x( c => c.index )
+    .y( c => gdpScale( c.gdp ) )( countries );
+
+  const spiral= d3.line()
+    .x( c => circleCoordX(c.index, countries.length, spiralRegression.a* c.index+ spiralRegression.b ) )
+    .y( c => circleCoordY(c.index, countries.length, spiralRegression.a* c.index+ spiralRegression.b ) )
+    .curve( d3.curveBasis );
+
+  svg
+    .append('path')
+    .attr('class', '.spiral')
+    .attr("d", spiral(countries))
+    .attr('stroke-width', '2.5')
+    .attr('stroke', Constants.spiralColor)
+    .attr('fill', 'none');
 
   // Draw the bundled edges
   const edgeColors = d3
