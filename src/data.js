@@ -9,7 +9,7 @@ export async function readProjectRelativeFile(relativePath) {
 }
 
 export async function loadDatasets() {
-  const [olympics, gdp, codes, ioc, committees, displayNames, defunct] = await Promise.all([
+  const [olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations] = await Promise.all([
     readProjectRelativeFile('../data/olympics.json'),
     readProjectRelativeFile('../data/gdp_per_capita.csv'),
     readProjectRelativeFile('../data/country_codes.csv'),
@@ -17,6 +17,7 @@ export async function loadDatasets() {
     readProjectRelativeFile('../data/olympic_committees.csv'),
     readProjectRelativeFile('../data/country_display_names.csv'),
     readProjectRelativeFile('../data/defunct_countries.json'),
+    readProjectRelativeFile('../data/category_combinations.csv'),
   ]);
 
   // Drop the header row and convert it into an indexing object
@@ -34,6 +35,7 @@ export async function loadDatasets() {
     committees: d3.csvParse(committees),
     displayNames: d3.csvParse(displayNames),
     defunct: JSON.parse(defunct),
+    categoryCombinations: d3.csvParse(categoryCombinations),
   };
 }
 
