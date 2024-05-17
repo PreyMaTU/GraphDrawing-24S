@@ -61,7 +61,6 @@ function circleCoordY(index, count, radius) {
 
 /**  @param {string[]} categoryCombinations */
 function computeCategoryCombinationPositions(categoryCombinations) {
-
   const sizeScale = d3
     .scaleLinear()
     .domain([Constants.categoryCount, 1])
@@ -71,15 +70,15 @@ function computeCategoryCombinationPositions(categoryCombinations) {
   for (const categoryCombination of categoryCombinations) {
     const categories = categoryCombination['category'].split('_');
     const combinationSize = categories.length;
-    var averageX = 0
-    var averageY = 0
+    var averageX = 0;
+    var averageY = 0;
 
     for (const category of categories) {
       averageX += circleCoordX(Constants.categoryIndices[category], Constants.categoryCount, 1);
       averageY += circleCoordY(Constants.categoryIndices[category], Constants.categoryCount, 1);
     }
 
-    const length = Math.sqrt(averageX*averageX + averageY*averageY);
+    const length = Math.sqrt(averageX * averageX + averageY * averageY);
     averageX /= length;
     averageY /= length;
 
@@ -128,17 +127,16 @@ function computePointsPerCategory(categoryCombinations) {
 function computeConvexHulls(categoryCombinations) {
   var pointsPerCategory = computePointsPerCategory(categoryCombinations);
 
-  var hullsPerCategory = {}
+  var hullsPerCategory = {};
   for (const category of Object.keys(Constants.categoryIndices)) {
     hullsPerCategory[category] = d3.polygonHull(pointsPerCategory[category]);
   }
-  
+
   return hullsPerCategory;
 }
 
 // https://observablehq.com/@mbostock/minimum-spanning-tree
 function computeMinimumSpanningTree(points) {
-
   function distance2(i, j) {
     const dx = points[i][0] - points[j][0];
     const dy = points[i][1] - points[j][1];
@@ -158,7 +156,7 @@ function computeMinimumSpanningTree(points) {
 
   // For each remaining minimum edge in the heap…
   let edge;
-  while (edge = heap.pop()) {
+  while ((edge = heap.pop())) {
     const [i, j] = edge;
 
     // If j is already connected, skip; otherwise add the new edge to point j.
@@ -176,7 +174,7 @@ function computeMinimumSpanningTree(points) {
   const lines = [];
   for (edge of tree) {
     const [i, j] = edge;
-    lines.push({x1: points[i][0], y1: points[i][1], x2: points[j][0], y2: points[j][1]});
+    lines.push({ x1: points[i][0], y1: points[i][1], x2: points[j][0], y2: points[j][1] });
   }
 
   return lines;
@@ -186,36 +184,33 @@ function computeMinimumSpanningTree(points) {
 function computeMISs(categoryCombinations) {
   var pointsPerCategory = computePointsPerCategory(categoryCombinations);
 
-  var misPerCategory = {}
+  var misPerCategory = {};
   for (const category of Object.keys(Constants.categoryIndices)) {
     misPerCategory[category] = computeMinimumSpanningTree(pointsPerCategory[category]);
   }
-  
+
   return misPerCategory;
 }
 
 function collectMISsLines(misPerCategory) {
-  var categoryPerLine = {}
+  var categoryPerLine = {};
   for (const category of Object.keys(Constants.categoryIndices)) {
     const lines = misPerCategory[category];
     for (const line of lines) {
-      const hash = line.x1+line.y1+line.x2+line.y2;
+      const hash = line.x1 + line.y1 + line.x2 + line.y2;
       if (!(hash in categoryPerLine)) {
         var dx = line.x2 - line.x1;
         var dy = line.y2 - line.y1;
-        var length = Math.sqrt(dx*dx + dy*dy);
+        var length = Math.sqrt(dx * dx + dy * dy);
         dx /= length;
         dy /= length;
-        categoryPerLine[hash] = {categories: [], line: line, normal: {x: dy, y: -dx}};
+        categoryPerLine[hash] = { categories: [], line: line, normal: { x: dy, y: -dx } };
       }
-      categoryPerLine[hash].categories.push(category)
+      categoryPerLine[hash].categories.push(category);
     }
   }
   return categoryPerLine;
 }
-
-
-
 
 function drawConvexHulls(hulls) {
   for (const category of Object.keys(Constants.categoryIndices)) {
@@ -224,7 +219,7 @@ function drawConvexHulls(hulls) {
       .style('stroke', Constants.categoryColors[category])
       .style('fill-opacity', '0.3')
       .style('fill', Constants.categoryColors[category]);
-      //style('fill', 'none')
+    //style('fill', 'none')
 
     const hull = hulls[category];
 
@@ -237,15 +232,14 @@ function drawConvexHulls(hulls) {
 
 function drawCategoryMarkers(pointsPerCategory) {
   for (const category of Object.keys(Constants.categoryIndices)) {
-    const h = svg.append('g')
+    const h = svg.append('g');
 
     const points = pointsPerCategory[category];
     const xOffset = circleCoordX(Constants.categoryIndices[category], Constants.categoryCount, 6);
     const yOffset = circleCoordY(Constants.categoryIndices[category], Constants.categoryCount, 6);
 
     for (const point of points) {
-      h
-        .append('circle')
+      h.append('circle')
         .attr('cx', c => point[0] + xOffset)
         .attr('cy', c => point[1] + yOffset)
         .attr('r', 2)
@@ -257,26 +251,23 @@ function drawCategoryMarkers(pointsPerCategory) {
 // TODO convert from spanning tree to euler diagramm
 function drawEulerDiagramm(misPerCategory) {
   for (const category of Object.keys(Constants.categoryIndices)) {
-    const h = svg.append('g')
+    const h = svg.append('g');
 
     const minimumSpanningTree = misPerCategory[category];
 
     for (const line of minimumSpanningTree) {
-      h
-        .append('line')
+      h.append('line')
         .attr('x1', line.x1)
         .attr('y1', line.y1)
         .attr('x2', line.x2)
         .attr('y2', line.y2)
         .attr('stroke-width', 20)
         .attr('stroke-opacity', 0.3)
-        .style("stroke-linecap", "round")
+        .style('stroke-linecap', 'round')
         .style('stroke', Constants.categoryColors[category]);
     }
   }
 }
-
-
 
 /**
  * @param {string[]} categoryCombinations
@@ -308,7 +299,7 @@ export function visualize_category_venn_diagramm(categoryCombinations) {
   const sizeCircles = svg
     .append('g')
     .selectAll('.size-level')
-    .data(d3.range(1, Constants.categoryCount+1))
+    .data(d3.range(1, Constants.categoryCount + 1))
     .enter()
     .append('circle')
     .attr('cx', Constants.center.x)
@@ -320,18 +311,22 @@ export function visualize_category_venn_diagramm(categoryCombinations) {
   const categorySeparators = svg
     .append('g')
     .selectAll('.category-line')
-    .data(d3.range(1, Constants.categoryCount+1))
+    .data(d3.range(1, Constants.categoryCount + 1))
     .enter()
     .append('line')
-    .attr('x1', r => Constants.center.x + circleCoordX(r, Constants.categoryCount, Constants.radius))
-    .attr('y1', r => Constants.center.y + circleCoordY(r, Constants.categoryCount, Constants.radius))
+    .attr(
+      'x1',
+      r => Constants.center.x + circleCoordX(r, Constants.categoryCount, Constants.radius)
+    )
+    .attr(
+      'y1',
+      r => Constants.center.y + circleCoordY(r, Constants.categoryCount, Constants.radius)
+    )
     .attr('x2', Constants.center.x)
     .attr('y2', Constants.center.y)
     .style('stroke', 'lightgrey');
-  
 
-
-  const h = svg.append('g')
+  const h = svg.append('g');
 
   for (const lineCategoryData of Object.values(categoryPerLine)) {
     const line = lineCategoryData.line;
@@ -342,31 +337,27 @@ export function visualize_category_venn_diagramm(categoryCombinations) {
       var offset = categoryCount - (lineCategoryData.categories.length - 1.0) * 0.5;
       offset *= 3;
 
-      h
-        .append('line')
+      h.append('line')
         .attr('x1', line.x1 + normal.x * offset)
         .attr('y1', line.y1 + normal.y * offset)
         .attr('x2', line.x2 + normal.x * offset)
         .attr('y2', line.y2 + normal.y * offset)
         .attr('stroke-width', 2)
         .attr('stroke-opacity', 1)
-        .style("stroke-linecap", "round")
+        .style('stroke-linecap', 'round')
         .style('stroke', Constants.categoryColors[category]);
 
       categoryCount++;
     }
   }
 
-
-
-
   // Draw nodes for countries
   const categoryCombinationNodes = svg
     .selectAll('.categoryCombination')
     .data(categoryCombinations)
     .enter()
-    .append('g')
-  
+    .append('g');
+
   categoryCombinationNodes
     .append('circle')
     .attr('cx', c => c.x)

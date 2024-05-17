@@ -10,15 +10,18 @@ import { visualizeCenter } from './visualize_center.js';
  * @typedef {import('./country.js').Region} Region
  */
 
-function replaceIconFillColor( svgText, fillColor ) {
-  return svgText.replaceAll(/(fill="[^"]*")|style="[^"]*(fill:[^;"]+;?)[^"]*"/g,
-  (match, colorAttribute, colorStyle) => {
-    if( colorAttribute ) {
-      return `fill="${fillColor}"`;
-    }
+function replaceIconFillColor(svgText, fillColor) {
+  return svgText.replaceAll(
+    /(fill="[^"]*")|style="[^"]*(fill:[^;"]+;?)[^"]*"/g,
+    (match, colorAttribute, colorStyle) => {
+      if (colorAttribute) {
+        return `fill="${fillColor}"`;
+      }
 
-    return match.replaceAll(/fill:[^;"]+;?/g, `fill:${fillColor};`);
-  });
+      // Replace all fill-rules in the style attribute
+      return match.replaceAll(/fill:[^;"]+;?/g, `fill:${fillColor};`);
+    }
+  );
 }
 
 function circleCoordX(index, count, radius) {
@@ -60,7 +63,7 @@ function computeCountryPositions(countries) {
     country.unitNormalY = -vectorX / vectorLength;
 
     const gdp = Math.max(minGdp, country.gdp);
-    country.gdpVectorLength= gdpScale(gdp);
+    country.gdpVectorLength = gdpScale(gdp);
     country.gdpX = circleCoordX(country.index, countries.length, country.gdpVectorLength);
     country.gdpY = circleCoordY(country.index, countries.length, country.gdpVectorLength);
 
@@ -146,13 +149,13 @@ export function visualize(countries, regions, medalType) {
 
   svg
     .selectAll('.gdp')
-    .data( countries )
+    .data(countries)
     .enter()
     .append('line')
-    .attr('x1', c => c.gdpX + c.unitNormalX* c.gdpVectorLength / 30)
-    .attr('y1', c => c.gdpY + c.unitNormalY* c.gdpVectorLength / 30)
-    .attr('x2', c => c.gdpX - c.unitNormalX* c.gdpVectorLength / 30)
-    .attr('y2', c => c.gdpY - c.unitNormalY* c.gdpVectorLength / 30)
+    .attr('x1', c => c.gdpX + (c.unitNormalX * c.gdpVectorLength) / 30)
+    .attr('y1', c => c.gdpY + (c.unitNormalY * c.gdpVectorLength) / 30)
+    .attr('x2', c => c.gdpX - (c.unitNormalX * c.gdpVectorLength) / 30)
+    .attr('y2', c => c.gdpY - (c.unitNormalY * c.gdpVectorLength) / 30)
     .style('stroke', Constants.spiralColor)
     .style('stroke-width', 2.5);
 
@@ -243,7 +246,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', t => t.y + t.ylen)
     .attr('x2', t => t.x - t.xlen)
     .attr('y2', t => t.y - t.ylen)
-    .style('stroke', t => t.year % 5 === 0 ? 'black' : 'gray')
+    .style('stroke', t => (t.year % 5 === 0 ? 'black' : 'gray'))
     .style('stroke-width', 0.5);
 
   /** @param {Country} country */
@@ -339,11 +342,11 @@ export function visualize(countries, regions, medalType) {
     );
 
   /**
-   * @param {function(Country):number} xoff 
-   * @param {function(Country):number} yoff 
-   * @param {function(Country):string} text 
+   * @param {function(Country):number} xoff
+   * @param {function(Country):number} yoff
+   * @param {function(Country):string} text
    */
-  function addCountryNodeText( xoff, yoff, text) {
+  function addCountryNodeText(xoff, yoff, text) {
     countryNodes
       .append('text')
       .attr('x', c => c.x + c.unitX * Constants.countryNameOffset + xoff(c))
@@ -357,19 +360,19 @@ export function visualize(countries, regions, medalType) {
         const y = nodes[i].getAttribute('y');
         return `rotate(${angle}, ${x}, ${y})`;
       })
-      .text( text );
+      .text(text);
   }
 
   addCountryNodeText(
-    c => c.unitNormalX* 8 * (c.x >= Constants.center.x ? 1 : -1),
-    c => c.unitNormalY* 8 * (c.x >= Constants.center.x ? 1 : -1),
+    c => c.unitNormalX * 8 * (c.x >= Constants.center.x ? 1 : -1),
+    c => c.unitNormalY * 8 * (c.x >= Constants.center.x ? 1 : -1),
     c => c.displayName
   );
 
   addCountryNodeText(
-    c => c.unitNormalX* 8* (c.x >= Constants.center.x ? -1 : 1),
-    c => c.unitNormalY* 8* (c.x >= Constants.center.x ? -1 : 1),
-    c => `${c.medals( medalType )} Medals`
+    c => c.unitNormalX * 8 * (c.x >= Constants.center.x ? -1 : 1),
+    c => c.unitNormalY * 8 * (c.x >= Constants.center.x ? -1 : 1),
+    c => `${c.medals(medalType)} Medals`
   );
 
   countryNodes

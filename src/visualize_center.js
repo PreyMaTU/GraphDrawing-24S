@@ -1,4 +1,3 @@
-
 import Constants from './constants.js';
 import * as d3 from 'd3';
 
@@ -13,7 +12,7 @@ import * as d3 from 'd3';
  * @param {Region[]} regions
  * @param {'Gold'|'Silver'|'Bronze'} medalType
  */
-export function visualizeCenter( svg, countries, regions, medalType ) {
+export function visualizeCenter(svg, countries, regions, medalType) {
   const regionsColors = d3
     .scaleOrdinal()
     .domain(Object.keys(Constants.regionColors))

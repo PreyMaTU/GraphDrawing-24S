@@ -11,7 +11,8 @@ import { visualize } from './src/visualize.js';
 import { visualize_category_venn_diagramm } from './src/category_venn_diagramm.js';
 
 async function loadData() {
-  const { olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations } = await loadDatasets();
+  const { olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations } =
+    await loadDatasets();
   const regionTable = mapIntoRegionTable(committees);
   const countryGdps = mergeIntoGdpData(gdp, codes, ioc);
   const countries = mergeIntoCountries(olympics, countryGdps, regionTable, displayNames, defunct);

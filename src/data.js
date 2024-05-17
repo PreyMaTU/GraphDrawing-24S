@@ -9,16 +9,17 @@ export async function readProjectRelativeFile(relativePath) {
 }
 
 export async function loadDatasets() {
-  const [olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations] = await Promise.all([
-    readProjectRelativeFile('../data/olympics.json'),
-    readProjectRelativeFile('../data/gdp_per_capita.csv'),
-    readProjectRelativeFile('../data/country_codes.csv'),
-    readProjectRelativeFile('../data/ioc_codes.csv'),
-    readProjectRelativeFile('../data/olympic_committees.csv'),
-    readProjectRelativeFile('../data/country_display_names.csv'),
-    readProjectRelativeFile('../data/defunct_countries.json'),
-    readProjectRelativeFile('../data/category_combinations.csv'),
-  ]);
+  const [olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations] =
+    await Promise.all([
+      readProjectRelativeFile('../data/olympics.json'),
+      readProjectRelativeFile('../data/gdp_per_capita.csv'),
+      readProjectRelativeFile('../data/country_codes.csv'),
+      readProjectRelativeFile('../data/ioc_codes.csv'),
+      readProjectRelativeFile('../data/olympic_committees.csv'),
+      readProjectRelativeFile('../data/country_display_names.csv'),
+      readProjectRelativeFile('../data/defunct_countries.json'),
+      readProjectRelativeFile('../data/category_combinations.csv'),
+    ]);
 
   // Drop the header row and convert it into an indexing object
   const gdpRows = d3.csvParseRows(gdp);
