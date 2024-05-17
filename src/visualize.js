@@ -2,53 +2,13 @@ import * as d3 from 'd3';
 import { JSDOM } from 'jsdom';
 import * as d3Regression from 'd3-regression';
 
+import Constants from './constants.js';
+import { visualizeCenter } from './visualize_center.js';
+
 /**
  * @typedef {import('./country.js').Country} Country
  * @typedef {import('./country.js').Region} Region
  */
-
-const Constants = {
-  width: 1050,
-  height: 1050,
-  margin: 100,
-  centerMarginPercent: 0.3,
-  centerNodePercent: 0.5,
-  centerTimeTicksPercent: 0.75,
-  backgroundColor: '#ffffff',
-  edgeBaseColorIntensity: 0.15,
-  countryNameOffset: 20,
-
-  categoryColors: {
-    shooting: '#1f77b4',
-    fighting: '#ff7f0e',
-    cycling: '#2ca02c',
-    swimming: '#d62728',
-    gymnastics: '#9467bd',
-    athletics: '#8c564b',
-    equestrian: '#e377c2',
-    boating: '#7f7f7f',
-    other: '#bcbd22',
-    racquets: '#17becf',
-    teams: '#ff0e7e',
-  },
-
-  regionColors: {
-    Europe: '#0081C8',
-    Asia: '#FCB131',
-    Africa: '#000000',
-    Oceania: '#00A651',
-    America: '#EE334E',
-    'No Region': '#FFFFFF',
-  },
-
-  spiralColor: '#c098f7',
-  defunctColor: '#BBB',
-
-  // Computed
-  radius: -1,
-  center: null,
-  centerMargin: -1,
-};
 
 function circleCoordX(index, count, radius) {
   const angle = (2 * Math.PI * index) / count;
@@ -215,7 +175,7 @@ export function visualize(countries, regions, medalType) {
     .domain(Object.keys(Constants.categoryColors))
     .range(Object.keys(Constants.categoryColors).map(name => Constants.categoryColors[name]));
 
-  const centerPieColor = d3
+  const regionsColors = d3
     .scaleOrdinal()
     .domain(Object.keys(Constants.regionColors))
     .range(Object.keys(Constants.regionColors).map(name => Constants.regionColors[name]));
@@ -320,7 +280,7 @@ export function visualize(countries, regions, medalType) {
     .selectAll('stop')
     .data(e => [
       // Color stop that connects the line to the center node
-      { offset: '0%', color: centerPieColor(e.country.region) },
+      { offset: '0%', color: regionsColors(e.country.region) },
 
       // Color stops for each game based on the number of medals won
       ...tickYears.map(year => ({
@@ -389,31 +349,7 @@ export function visualize(countries, regions, medalType) {
     .html(c => c.svgIcon);
 
   // Draw the center node
-  const centerNode = svg
-    .append('g')
-    .attr('class', 'center-node')
-    .attr('transform', `translate(${Constants.center.x}, ${Constants.center.y})`);
-
-  const centerPie = d3
-    .pie()
-    .value(r => r.size)
-    .sortValues((a, b) => b.medals - a.medals);
-
-  centerNode
-    .selectAll('.arc')
-    .data(centerPie(regions))
-    .enter()
-    .append('path')
-    .attr(
-      'd',
-      d3
-        .arc()
-        .innerRadius(0)
-        .outerRadius(Constants.centerMargin * Constants.centerNodePercent)
-    )
-    .attr('fill', d => centerPieColor(d.data.name))
-    .attr('stroke', 'black')
-    .style('stroke-width', '2px');
+  visualizeCenter(svg, countries, regions, medalType);
 
   return body;
 }
