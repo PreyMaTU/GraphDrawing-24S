@@ -205,7 +205,7 @@ export class Country {
   }
 
   medals(type) {
-    return this[type + 'Medals'];
+    return this[type.toLowerCase() + 'Medals'];
   }
 
   /** @param {function(SportCategory, string):void} fn  */

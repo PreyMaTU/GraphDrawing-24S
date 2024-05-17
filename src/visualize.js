@@ -327,20 +327,39 @@ export function visualize(countries, regions, medalType) {
       : 'steelblue'
     );
 
-  countryNodes
-    .append('text')
-    .attr('x', c => c.x + c.unitX * Constants.countryNameOffset)
-    .attr('y', c => c.y + c.unitY * Constants.countryNameOffset)
-    .attr('text-anchor', c => (c.x >= Constants.center.x ? 'start' : 'end'))
-    .attr('dominant-baseline', 'central')
-    .attr('transform', c => {
-      const flipAngle = c.x >= Constants.center.x ? 0 : 180;
-      const angle = (Math.atan2(c.unitY, c.unitX) * 180) / Math.PI + flipAngle;
-      const x = c.x + c.unitX * Constants.countryNameOffset;
-      const y = c.y + c.unitY * Constants.countryNameOffset;
-      return `rotate(${angle}, ${x}, ${y})`;
-    })
-    .text(c => c.displayName);
+  /**
+   * @param {function(Country):number} xoff 
+   * @param {function(Country):number} yoff 
+   * @param {function(Country):string} text 
+   */
+  function addCountryNodeText( xoff, yoff, text) {
+    countryNodes
+      .append('text')
+      .attr('x', c => c.x + c.unitX * Constants.countryNameOffset + xoff(c))
+      .attr('y', c => c.y + c.unitY * Constants.countryNameOffset + yoff(c))
+      .attr('text-anchor', c => (c.x >= Constants.center.x ? 'start' : 'end'))
+      .attr('dominant-baseline', 'central')
+      .attr('transform', (c, i, nodes) => {
+        const flipAngle = c.x >= Constants.center.x ? 0 : 180;
+        const angle = (Math.atan2(c.unitY, c.unitX) * 180) / Math.PI + flipAngle;
+        const x = nodes[i].getAttribute('x');
+        const y = nodes[i].getAttribute('y');
+        return `rotate(${angle}, ${x}, ${y})`;
+      })
+      .text( text );
+  }
+
+  addCountryNodeText(
+    c => c.unitNormalX* 8 * (c.x >= Constants.center.x ? 1 : -1),
+    c => c.unitNormalY* 8 * (c.x >= Constants.center.x ? 1 : -1),
+    c => c.displayName
+  );
+
+  addCountryNodeText(
+    c => c.unitNormalX* 8* (c.x >= Constants.center.x ? -1 : 1),
+    c => c.unitNormalY* 8* (c.x >= Constants.center.x ? -1 : 1),
+    c => `${c.medals( medalType )} Medals`
+  );
 
   countryNodes
     .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))
