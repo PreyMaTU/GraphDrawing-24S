@@ -10,6 +10,17 @@ import { visualizeCenter } from './visualize_center.js';
  * @typedef {import('./country.js').Region} Region
  */
 
+function replaceIconFillColor( svgText, fillColor ) {
+  return svgText.replaceAll(/(fill="[^"]*")|style="[^"]*(fill:[^;"]+;?)[^"]*"/g,
+  (match, colorAttribute, colorStyle) => {
+    if( colorAttribute ) {
+      return `fill="${fillColor}"`;
+    }
+
+    return match.replaceAll(/fill:[^;"]+;?/g, `fill:${fillColor};`);
+  });
+}
+
 function circleCoordX(index, count, radius) {
   const angle = (2 * Math.PI * index) / count;
   return Constants.center.x + radius * Math.sin(angle);
@@ -365,7 +376,7 @@ export function visualize(countries, regions, medalType) {
     .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))
     .append('g')
     .attr('transform', c => `translate(${c.x}, ${c.y}) scale(0.025) translate(-800, -800)`)
-    .html(c => c.svgIcon);
+    .html(c => replaceIconFillColor(c.svgIcon, regionsColors(c.region)));
 
   // Draw the center node
   visualizeCenter(svg, countries, regions, medalType);
