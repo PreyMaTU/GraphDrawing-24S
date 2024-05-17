@@ -76,19 +76,22 @@ function computeCountryPositions(countries) {
 
   // Compute the position of each country based on its index
   for (const country of countries) {
-    const gdp = Math.max(minGdp, country.gdp);
-    country.x = circleCoordX(country.index, countries.length, gdpScale(gdp));
-    country.y = circleCoordY(country.index, countries.length, gdpScale(gdp));
+    const vectorLength = Constants.radius;
+    country.x = circleCoordX(country.index, countries.length, vectorLength);
+    country.y = circleCoordY(country.index, countries.length, vectorLength);
 
     const vectorX = country.x - Constants.center.x;
     const vectorY = country.y - Constants.center.y;
-    const vectorLength = Math.sqrt(vectorX * vectorX + vectorY * vectorY);
 
-    country.vectorLength = vectorLength;
     country.unitX = vectorX / vectorLength;
     country.unitY = vectorY / vectorLength;
     country.unitNormalX = vectorY / vectorLength;
     country.unitNormalY = -vectorX / vectorLength;
+
+    const gdp = Math.max(minGdp, country.gdp);
+    country.gdpVectorLength= gdpScale(gdp);
+    country.gdpX = circleCoordX(country.index, countries.length, country.gdpVectorLength);
+    country.gdpY = circleCoordY(country.index, countries.length, country.gdpVectorLength);
 
     // console.log( `${country.name} - GDP: ${country.gdp}, Index: ${country.index}, Position: (${country.x}, ${country.y})` )
   }
@@ -169,6 +172,18 @@ export function visualize(countries, regions, medalType) {
     .attr('x2', Constants.center.x)
     .attr('y2', Constants.center.y)
     .style('stroke', 'lightgrey');*/
+
+  svg
+    .selectAll('.gdp')
+    .data( countries )
+    .enter()
+    .append('line')
+    .attr('x1', c => c.gdpX + c.unitNormalX* c.gdpVectorLength / 30)
+    .attr('y1', c => c.gdpY + c.unitNormalY* c.gdpVectorLength / 30)
+    .attr('x2', c => c.gdpX - c.unitNormalX* c.gdpVectorLength / 30)
+    .attr('y2', c => c.gdpY - c.unitNormalY* c.gdpVectorLength / 30)
+    .style('stroke', Constants.spiralColor)
+    .style('stroke-width', 2.5);
 
   // Draw linear regression as a spiral
   const spiralRegression = d3Regression
@@ -257,15 +272,15 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', t => t.y + t.ylen)
     .attr('x2', t => t.x - t.xlen)
     .attr('y2', t => t.y - t.ylen)
-    .style('stroke', () => 'gray')
-    .style('stroke-width', () => '0.5');
+    .style('stroke', 'gray')
+    .style('stroke-width', 0.5);
 
   /** @param {Country} country */
   function filledSportCategoriesWithGradientScale(country) {
     const fr = Constants.centerMargin * Constants.centerNodePercent;
     const ticksBegin = Constants.centerMargin * Constants.centerTimeTicksPercent;
     const clearRadius = ticksBegin - fr;
-    const usableGradientLength = country.vectorLength - fr;
+    const usableGradientLength = Constants.radius - fr;
     const ticksRangeBegin = clearRadius / usableGradientLength;
 
     const maxMedalCount = country.getMaxMedalCountPerGame(medalType);
@@ -299,7 +314,7 @@ export function visualize(countries, regions, medalType) {
     .attr('gradientUnits', 'userSpaceOnUse')
     .attr('cx', Constants.center.x)
     .attr('cy', Constants.center.y)
-    .attr('r', e => e.country.vectorLength)
+    .attr('r', Constants.radius)
     .attr('fr', Constants.centerMargin * Constants.centerNodePercent)
     .attr('id', e => `gradient-${e.country.iso2}-${e.category.name}`)
     .selectAll('stop')

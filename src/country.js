@@ -183,7 +183,9 @@ export class Country {
     this.index = 0;
     this.x = 0;
     this.y = 0;
-    this.vectorLength = 0;
+    this.gdpX= 0;
+    this.gdpY= 0;
+    this.gdpVectorLength = 0;
     this.unitX = 0;
     this.unitY = 0;
     this.unitNormalX = 0;
