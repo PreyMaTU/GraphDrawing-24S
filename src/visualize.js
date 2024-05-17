@@ -214,7 +214,7 @@ export function visualize(countries, regions, medalType) {
       const x = tickScaleX(year);
       const y = tickScaleY(year);
 
-      return { x, y, xlen, ylen };
+      return { x, y, xlen, ylen, year };
     });
   }
 
@@ -232,7 +232,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', t => t.y + t.ylen)
     .attr('x2', t => t.x - t.xlen)
     .attr('y2', t => t.y - t.ylen)
-    .style('stroke', 'gray')
+    .style('stroke', t => t.year % 5 === 0 ? 'black' : 'gray')
     .style('stroke-width', 0.5);
 
   /** @param {Country} country */
