@@ -1,13 +1,29 @@
 export default {
   width: 1050,
   height: 1050,
-  margin: 100,
-  centerMarginPercent: 0.3,
+  margin: 150,
+  centerMarginPercent: 0.4,
   centerNodePercent: 0.5,
   centerTimeTicksPercent: 0.75,
   backgroundColor: '#ffffff',
   edgeBaseColorIntensity: 0.15,
   countryNameOffset: 20,
+
+  categoryCount: 11,
+
+  categoryIndices: {
+    shooting: 0,
+    fighting: 1,
+    cycling: 2,
+    swimming: 3,
+    gymnastics: 4,
+    athletics: 5,
+    equestrian: 6,
+    boating: 7,
+    other: 8,
+    racquets: 9,
+    teams: 10,
+  },
 
   categoryColors: {
     shooting: '#1f77b4',

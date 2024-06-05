@@ -213,12 +213,8 @@ export function visualize(countries, regions, medalType) {
 
     // Compute the starting position for the first tick based on the country
     // position and center margins
-    const startX =
-      Constants.center.x +
-      country.unitX * Constants.centerMargin * Constants.centerTimeTicksPercent;
-    const startY =
-      Constants.center.y +
-      country.unitY * Constants.centerMargin * Constants.centerTimeTicksPercent;
+    const startX = Constants.center.x + country.unitX * Constants.centerMargin;
+    const startY = Constants.center.y + country.unitY * Constants.centerMargin;
 
     tickScaleX.range([startX, country.x]);
     tickScaleY.range([startY, country.y]);
@@ -251,8 +247,8 @@ export function visualize(countries, regions, medalType) {
 
   /** @param {Country} country */
   function filledSportCategoriesWithGradientScale(country) {
-    const fr = Constants.centerMargin * Constants.centerNodePercent;
-    const ticksBegin = Constants.centerMargin * Constants.centerTimeTicksPercent;
+    const fr = Constants.centerMargin;
+    const ticksBegin = Constants.centerMargin;
     const clearRadius = ticksBegin - fr;
     const usableGradientLength = Constants.radius - fr;
     const ticksRangeBegin = clearRadius / usableGradientLength;
@@ -289,7 +285,7 @@ export function visualize(countries, regions, medalType) {
     .attr('cx', Constants.center.x)
     .attr('cy', Constants.center.y)
     .attr('r', Constants.radius)
-    .attr('fr', Constants.centerMargin * Constants.centerNodePercent)
+    .attr('fr', Constants.centerMargin)
     .attr('id', e => `gradient-${e.country.iso2}-${e.category.name}`)
     .selectAll('stop')
     .data(e => [
@@ -317,8 +313,8 @@ export function visualize(countries, regions, medalType) {
     .append('line')
     .attr('x1', (e, i, n) => e.country.x + e.country.unitNormalX * (i - n.length / 2))
     .attr('y1', (e, i, n) => e.country.y + e.country.unitNormalY * (i - n.length / 2))
-    .attr('x2', (e, i, n) => Constants.center.x + e.country.unitNormalX * (i - n.length / 2))
-    .attr('y2', (e, i, n) => Constants.center.y + e.country.unitNormalY * (i - n.length / 2))
+    .attr('x2', (e, i, n) => Constants.center.x + e.country.unitX * Constants.centerMargin + e.country.unitNormalX * (i - n.length / 2))
+    .attr('y2', (e, i, n) => Constants.center.y + e.country.unitY * Constants.centerMargin + e.country.unitNormalY * (i - n.length / 2))
     .style('stroke', e => `url(#gradient-${e.country.iso2}-${e.category.name})`);
   //.style('stroke', e => edgeColors(e.category.name));
 
