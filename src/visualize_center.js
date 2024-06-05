@@ -161,8 +161,8 @@ export function visualizeCenter(svg, countries, regions, medalType) {
       const radius = Constants.centerMargin - 10 - arc.level * 16;
       const angleOffset = Math.atan(7 / radius);
       var svgArc = d3.arc()
-        .innerRadius(radius-7)
-        .outerRadius(radius+7)
+        .innerRadius(radius-2)
+        .outerRadius(radius+2)
         .startAngle(arc.start - angleOffset)
         .endAngle(arc.end + angleOffset)
         .cornerRadius(10);
@@ -190,10 +190,10 @@ export function visualizeCenter(svg, countries, regions, medalType) {
     const arc = arcs[categoriesPerCountry[country.index]];
     const radius = Constants.centerMargin - 10 - arc.level * 16;
     centerNode.append("circle")
-      .attr("cx", country.unitX * (radius + 7))
-      .attr("cy", country.unitY * (radius + 7))
-      .attr("r", 1)
-      .style("fill", "#aaa");
+      .attr("cx", country.unitX * (radius))
+      .attr("cy", country.unitY * (radius))
+      .attr("r", 7)
+      .style("fill", "#f0f0f0");
 
     if (arc.startIndex == country.index) {
       var markerPosition = [country.unitX*radius, country.unitY*radius];

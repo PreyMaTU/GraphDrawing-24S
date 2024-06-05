@@ -127,6 +127,17 @@ export class SportCategory {
     const medals = this._medalMapByType(type);
     return medals?.get(year)?.length || 0;
   }
+
+  medalCountTimeline(type) {
+    const medals = this._medalMapByType(type);
+    if (!medals) {
+      return 0;
+    }
+
+    let countTimeline = {}
+    medals.forEach((medals, year) => (countTimeline[year] =  medals.length));
+    return Object.entries(countTimeline);
+  }
 }
 
 export class Country {
@@ -286,6 +297,18 @@ export class Country {
     } catch (e) {
       console.error(`Could not load icon for country '${this.noc}' with ISO2 '${this.iso2}':`, e);
     }
+  }
+
+  getMedalCountTimeline(medalType) {
+    const countTimeline = {};
+
+    this.forEachCategory(cat => {
+      cat.medalCountTimeline(medalType).forEach(([year, count]) => {
+        countTimeline[year] = (countTimeline[year] || 0) + count;
+      });
+    });
+
+    return Object.entries(countTimeline).map(([year, count]) => [this, year, count]);
   }
 }
 
