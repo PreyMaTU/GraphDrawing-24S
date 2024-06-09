@@ -24,7 +24,11 @@ async function loadData() {
 
 async function prepareData(medalType) {
   const [countries, categoryCombinations] = await loadData();
-  const filteredCountries = filterTopCountriesAndMergeRest(countries, Constants.countryCount, medalType);
+  const filteredCountries = filterTopCountriesAndMergeRest(
+    countries,
+    Constants.countryCount,
+    medalType
+  );
 
   await Promise.all(filteredCountries.map(c => c.loadIcon()));
 

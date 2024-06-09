@@ -259,7 +259,7 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType) {
     // Calculate combined GDP
     const avgGdp = group.reduce((sum, c) => sum + c.gdp, 0) / group.length;
     const combinedCountry = new CombinedCountry(
-      `${name} (Remaining)`, // old: Residuals
+      `${name} (Other)`, // old: Residuals, Remaining; We need to keep the label short so it fits onto the medal
       '',
       name,
       avgGdp,

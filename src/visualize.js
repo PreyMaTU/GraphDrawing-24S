@@ -165,12 +165,9 @@ export function visualize(countries, regions, medalType) {
     .attr('r', c => gdpScale(c));
 
   // Style
-  gdpCircles
-    .style('stroke', 'lightgrey')
-    .style('fill', 'none');
+  gdpCircles.style('stroke', 'lightgrey').style('fill', 'none');
 
-  d3.select(gdpCircles.nodes()[0])
-    .style('stroke-width', 2);
+  d3.select(gdpCircles.nodes()[0]).style('stroke-width', 2);
 
   /*
   const regionSeparators = svg
