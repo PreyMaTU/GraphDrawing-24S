@@ -169,6 +169,9 @@ export function visualize(countries, regions, medalType) {
     .style('stroke', 'lightgrey')
     .style('fill', 'none');
 
+  d3.select(gdpCircles.nodes()[0])
+    .style('stroke-width', 2);
+
   /*
   const regionSeparators = svg
     .selectAll('.region-line')
