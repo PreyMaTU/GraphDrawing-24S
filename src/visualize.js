@@ -208,8 +208,8 @@ export function visualize(countries, regions, medalType) {
   function countryTicks(country) {
     // Compute the offsets to the bundle to draw the tick line across it
     const halfWidth = country.filledSportCategories().length / 2 + 2;
-    const xlen = country.unitNormalX * 8.0;//halfWidth;
-    const ylen = country.unitNormalY * 8.0;//halfWidth;
+    const xlen = country.unitNormalX * 8.0; //halfWidth;
+    const ylen = country.unitNormalY * 8.0; //halfWidth;
 
     // Compute the starting position for the first tick based on the country
     // position and center margins
@@ -276,7 +276,10 @@ export function visualize(countries, regions, medalType) {
     }));
   }
 
-  const positionScale = d3.scaleLinear().domain([firstYear, lastYear]).range([Constants.centerMargin, Constants.radius]);
+  const positionScale = d3
+    .scaleLinear()
+    .domain([firstYear, lastYear])
+    .range([Constants.centerMargin, Constants.radius]);
 
   // Draw the axis
   edges
@@ -294,10 +297,26 @@ export function visualize(countries, regions, medalType) {
     .data(c => c.getMedalCountTimeline(medalType))
     .enter()
     .append('line')
-    .attr('x1', ([c, year, count]) => Constants.center.x + c.unitX * positionScale(year) + c.unitNormalX * Math.log(count) * 2.0)
-    .attr('y1', ([c, year, count]) => Constants.center.y + c.unitY * positionScale(year) + c.unitNormalY * Math.log(count) * 2.0)
-    .attr('x2', ([c, year, count]) => Constants.center.x + c.unitX * positionScale(year) - c.unitNormalX * Math.log(count) * 2.0)
-    .attr('y2', ([c, year, count]) => Constants.center.y + c.unitY * positionScale(year) - c.unitNormalY * Math.log(count) * 2.0)
+    .attr(
+      'x1',
+      ([c, year, count]) =>
+        Constants.center.x + c.unitX * positionScale(year) + c.unitNormalX * Math.log(count) * 2.0
+    )
+    .attr(
+      'y1',
+      ([c, year, count]) =>
+        Constants.center.y + c.unitY * positionScale(year) + c.unitNormalY * Math.log(count) * 2.0
+    )
+    .attr(
+      'x2',
+      ([c, year, count]) =>
+        Constants.center.x + c.unitX * positionScale(year) - c.unitNormalX * Math.log(count) * 2.0
+    )
+    .attr(
+      'y2',
+      ([c, year, count]) =>
+        Constants.center.y + c.unitY * positionScale(year) - c.unitNormalY * Math.log(count) * 2.0
+    )
     .style('stroke', 'black')
     .style('stroke-width', 5);
 

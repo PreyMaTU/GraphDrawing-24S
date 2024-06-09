@@ -73,10 +73,18 @@ function computeCategoryCombinationPositions(categoryCombinations) {
     var averageX = 0;
     var averageY = 0;
 
-    var angleOffset = -(combinationSize-1)*0.05;
+    var angleOffset = -(combinationSize - 1) * 0.05;
     for (const category of categories) {
-      averageX += circleCoordX(Constants.categoryIndices[category]+angleOffset, Constants.categoryCount, 1);
-      averageY += circleCoordY(Constants.categoryIndices[category]+angleOffset, Constants.categoryCount, 1);
+      averageX += circleCoordX(
+        Constants.categoryIndices[category] + angleOffset,
+        Constants.categoryCount,
+        1
+      );
+      averageY += circleCoordY(
+        Constants.categoryIndices[category] + angleOffset,
+        Constants.categoryCount,
+        1
+      );
     }
 
     const length = Math.sqrt(averageX * averageX + averageY * averageY);
@@ -352,7 +360,6 @@ export function visualize_category_venn_diagramm(categoryCombinations) {
     }
   }
 
-
   const circleColor = d3.scaleSequential(d3.interpolateWarm);
 
   // Draw nodes for countries
@@ -366,8 +373,8 @@ export function visualize_category_venn_diagramm(categoryCombinations) {
     .append('circle')
     .attr('cx', c => c.x)
     .attr('cy', c => c.y)
-    .attr('r', c => 4+2*c.country_count)
-    .style('fill', c => circleColor(Math.log(c.country_count)/Math.log(14)));
+    .attr('r', c => 4 + 2 * c.country_count)
+    .style('fill', c => circleColor(Math.log(c.country_count) / Math.log(14)));
 
   categoryCombinationNodes
     .append('text')

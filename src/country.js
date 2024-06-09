@@ -134,8 +134,8 @@ export class SportCategory {
       return 0;
     }
 
-    let countTimeline = {}
-    medals.forEach((medals, year) => (countTimeline[year] =  medals.length));
+    let countTimeline = {};
+    medals.forEach((medals, year) => (countTimeline[year] = medals.length));
     return Object.entries(countTimeline);
   }
 }
