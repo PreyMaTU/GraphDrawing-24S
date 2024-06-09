@@ -388,10 +388,9 @@ export function visualize(countries, regions, medalType) {
         const y = nodes[i].getAttribute('y');
         return `rotate(${angle}, ${x}, ${y})`;
       })
-      .text(text);
+      .text(text)
 
-    // Style
-    countryNodes
+      // Font-styling
       .style('font-size', `${isMedalCount ? '0.8em' : '1em'}`)
       .style('font-family', '"Outfit", sans-serif');
   }
