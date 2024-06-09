@@ -136,7 +136,7 @@ export function visualize(countries, regions, medalType) {
     .attr('height', Constants.height)
     .attr('xmlns', 'http://www.w3.org/2000/svg');
 
-  // Add font family (and other design elements)
+  // Add font family (and other design elements?)
   svg
     .append('defs')
     .append('style')
@@ -145,17 +145,16 @@ export function visualize(countries, regions, medalType) {
       `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');`
     );
 
+  // Draw circles for each n years
   const gdpScale = computeCountryPositions(countries);
-  const biggest = countries.reduce((max, currC) => currC.gdp > max.gdp ? currC : max, { gdp: 0 });
-  const smallest = countries.reduce((min, currC) => (currC.gdp < min.gdp && currC.gdp !== 0) ? currC : min, { gdp: Number.MAX_SAFE_INTEGER });
+  const [smallest, biggest] = gdpScale.domain();
 
-  const step = (Math.log(biggest.gdp) - Math.log(smallest.gdp)) / (Constants.timeSteps - 1);
+  const step = (Math.log(biggest) - Math.log(smallest)) / (Constants.timeSteps - 1);
   const data = [];
   for (let i = 0; i < Constants.timeSteps; i++) {
-    data.push(Math.round(Math.exp(Math.log(smallest.gdp) + i * step)));
+    data.push(Math.round(Math.exp(Math.log(smallest) + i * step)));
   }
 
-  // Draw circles for each n years
   const gdpCircles = svg
     .selectAll('.gdp-level')
     .data(data)
@@ -183,6 +182,7 @@ export function visualize(countries, regions, medalType) {
     .style('stroke', 'lightgrey');
   */
 
+  // Draw each country's GDP as blue line
   svg
     .selectAll('.gdp')
     .data(countries)
@@ -238,10 +238,11 @@ export function visualize(countries, regions, medalType) {
     .attr('class', c => `edge ${c.noc}`);
 
   const { firstYear, lastYear, tickYears } = computeTickYearArray(countries, medalType);
+  /*
   const tickScaleX = d3.scaleLinear().domain([firstYear, lastYear]);
   const tickScaleY = d3.scaleLinear().domain([firstYear, lastYear]);
 
-  /*
+  
   function countryTicks(country) {
     // Compute the offsets to the bundle to draw the tick line across it
     const halfWidth = country.filledSportCategories().length / 2 + 2;
