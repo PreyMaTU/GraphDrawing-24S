@@ -8,6 +8,7 @@ export default {
   backgroundColor: '#ffffff',
   edgeBaseColorIntensity: 0.15,
   countryNameOffset: 20,
+  timeSteps: 5,
 
   categoryCount: 11,
   countryCount: 35,

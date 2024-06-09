@@ -146,11 +146,19 @@ export function visualize(countries, regions, medalType) {
     );
 
   const gdpScale = computeCountryPositions(countries);
+  const biggest = countries.reduce((max, currC) => currC.gdp > max.gdp ? currC : max, { gdp: 0 });
+  const smallest = countries.reduce((min, currC) => (currC.gdp < min.gdp && currC.gdp !== 0) ? currC : min, { gdp: Number.MAX_SAFE_INTEGER });
+
+  const step = (Math.log(biggest.gdp) - Math.log(smallest.gdp)) / (Constants.timeSteps - 1);
+  const data = [];
+  for (let i = 0; i < Constants.timeSteps; i++) {
+    data.push(Math.round(Math.exp(Math.log(smallest.gdp) + i * step)));
+  }
 
   // Draw circles for each n years
   const gdpCircles = svg
     .selectAll('.gdp-level')
-    .data([1000, 10000, 100000])
+    .data(data)
     .enter()
     .append('circle')
     .attr('cx', Constants.center.x)
@@ -319,7 +327,7 @@ export function visualize(countries, regions, medalType) {
     .attr('x2', c => c.x)
     .attr('y2', c => c.y)
     .style('stroke', '#aaa')
-    .style('stroke-width', 1);
+    .style('stroke-width', 2); // TODO
 
   // Draw the bar diagramm
   edges
