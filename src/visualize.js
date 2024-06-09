@@ -13,7 +13,7 @@ import { visualizeCenter } from './visualize_center.js';
 function replaceIconFillColor(svgText, fillColor) {
   return svgText.replaceAll(
     /(fill="[^"]*")|style="[^"]*(fill:[^;"]+;?)[^"]*"/g,
-    (match, colorAttribute, colorStyle) => {
+    (match, colorAttribute, _colorStyle) => {
       if (colorAttribute) {
         return `fill="${fillColor}"`;
       }
@@ -25,13 +25,27 @@ function replaceIconFillColor(svgText, fillColor) {
 }
 
 function circleCoordX(index, count, radius) {
+  if (!Constants.center) {
+    console.error(
+      `Expected const 'center' to be truthy, found ${typeof Constants.center} instead. This should not happen.`
+    );
+    return;
+  }
+
   const angle = (2 * Math.PI * index) / count;
-  return Constants.center.x + radius * Math.sin(angle);
+  return Constants.center['x'] + radius * Math.sin(angle);
 }
 
 function circleCoordY(index, count, radius) {
+  if (!Constants.center) {
+    console.error(
+      `Expected const 'center' to be truthy, found ${typeof Constants.center} instead. This should not happen.`
+    );
+    return;
+  }
+
   const angle = (2 * Math.PI * index) / count;
-  return Constants.center.y + radius * -Math.cos(angle);
+  return Constants.center['y'] + radius * -Math.cos(angle);
 }
 
 /**  @param {Country[]} countries */
@@ -122,9 +136,18 @@ export function visualize(countries, regions, medalType) {
     .attr('height', Constants.height)
     .attr('xmlns', 'http://www.w3.org/2000/svg');
 
+  // Add font family (and other design elements)
+  svg
+    .append('defs')
+    .append('style')
+    .attr('type', 'text/css')
+    .text(
+      `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');`
+    );
+
   const gdpScale = computeCountryPositions(countries);
 
-  // Draw circles for GDP levels
+  // Draw circles for each n years
   const gdpCircles = svg
     .selectAll('.gdp-level')
     .data([1000, 10000, 100000])
@@ -132,11 +155,15 @@ export function visualize(countries, regions, medalType) {
     .append('circle')
     .attr('cx', Constants.center.x)
     .attr('cy', Constants.center.y)
-    .attr('r', c => gdpScale(c))
+    .attr('r', c => gdpScale(c));
+
+  // Style
+  gdpCircles
     .style('stroke', 'lightgrey')
     .style('fill', 'none');
 
-  /*const regionSeparators = svg
+  /*
+  const regionSeparators = svg
     .selectAll('.region-line')
     .data(regions)
     .enter()
@@ -145,7 +172,8 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', r => circleCoordY(r.firstCountry.index, countries.length, Constants.radius))
     .attr('x2', Constants.center.x)
     .attr('y2', Constants.center.y)
-    .style('stroke', 'lightgrey');*/
+    .style('stroke', 'lightgrey');
+  */
 
   svg
     .selectAll('.gdp')
@@ -205,6 +233,7 @@ export function visualize(countries, regions, medalType) {
   const tickScaleX = d3.scaleLinear().domain([firstYear, lastYear]);
   const tickScaleY = d3.scaleLinear().domain([firstYear, lastYear]);
 
+  /*
   function countryTicks(country) {
     // Compute the offsets to the bundle to draw the tick line across it
     const halfWidth = country.filledSportCategories().length / 2 + 2;
@@ -244,6 +273,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y2', t => t.y - t.ylen)
     .style('stroke', t => (t.year % 5 === 0 ? 'black' : 'none'))
     .style('stroke-width', 0.5);
+  */
 
   /** @param {Country} country */
   function filledSportCategoriesWithGradientScale(country) {
@@ -344,7 +374,7 @@ export function visualize(countries, regions, medalType) {
    * @param {function(Country):number} yoff
    * @param {function(Country):string} text
    */
-  function addCountryNodeText(xoff, yoff, text) {
+  function addCountryNodeText(xoff, yoff, text, isMedalCount) {
     countryNodes
       .append('text')
       .attr('x', c => c.x + c.unitX * Constants.countryNameOffset + xoff(c))
@@ -359,18 +389,25 @@ export function visualize(countries, regions, medalType) {
         return `rotate(${angle}, ${x}, ${y})`;
       })
       .text(text);
+
+    // Style
+    countryNodes
+      .style('font-size', `${isMedalCount ? '0.8em' : '1em'}`)
+      .style('font-family', '"Outfit", sans-serif');
   }
 
   addCountryNodeText(
     c => c.unitNormalX * 8 * (c.x >= Constants.center.x ? 1 : -1),
     c => c.unitNormalY * 8 * (c.x >= Constants.center.x ? 1 : -1),
-    c => c.displayName
+    c => c.displayName,
+    false
   );
 
   addCountryNodeText(
     c => c.unitNormalX * 8 * (c.x >= Constants.center.x ? -1 : 1),
     c => c.unitNormalY * 8 * (c.x >= Constants.center.x ? -1 : 1),
-    c => `${c.medals(medalType)} Medals`
+    c => `${c.medals(medalType)} Medals`,
+    true
   );
 
   countryNodes

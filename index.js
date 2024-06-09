@@ -10,6 +10,8 @@ import {
 import { visualize } from './src/visualize.js';
 import { visualize_category_venn_diagramm } from './src/category_venn_diagramm.js';
 
+import Constants from './src/constants.js';
+
 async function loadData() {
   const { olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations } =
     await loadDatasets();
@@ -22,7 +24,7 @@ async function loadData() {
 
 async function prepareData(medalType) {
   const [countries, categoryCombinations] = await loadData();
-  const filteredCountries = filterTopCountriesAndMergeRest(countries, 40, medalType);
+  const filteredCountries = filterTopCountriesAndMergeRest(countries, Constants.countryCount, medalType);
 
   await Promise.all(filteredCountries.map(c => c.loadIcon()));
 

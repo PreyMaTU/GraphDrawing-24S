@@ -66,10 +66,17 @@ export function visualizeCenter(svg, countries, regions, medalType) {
   //   .domain(Object.keys(Constants.regionColors))
   //   .range(Object.keys(Constants.regionColors).map(name => Constants.regionColors[name]));
 
+  if (!Constants.center) {
+    console.error(
+      `Expected const 'center' to be truthy, found ${typeof Constants.center} instead. This should not happen.`
+    );
+    return;
+  }
+
   const centerNode = svg
     .append('g')
     .attr('class', 'center-node')
-    .attr('transform', `translate(${Constants.center.x}, ${Constants.center.y})`);
+    .attr('transform', `translate(${Constants.center['x']}, ${Constants.center['y']})`);
 
   const mapNameMapping = { Gold: 'goldMedals', Silver: 'silverMedals', Bronze: 'bronzeMedals' };
 
@@ -102,7 +109,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
   for (let i = 0; i < numberOfArcs; i++) {
     const arc1 = Object.values(arcs)[i];
 
-    if (arc1.length == 1) {
+    if (arc1.length === 1) {
       continue;
     }
 
@@ -110,7 +117,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
     let intersectsLevel0 = false;
     for (let j = 0; j < numberOfArcs; j++) {
       const arc2 = Object.values(arcs)[j];
-      if (arc2.level == 0 && arc1.start < arc2.end && arc2.start < arc1.end) {
+      if (arc2.level === 0 && arc1.start < arc2.end && arc2.start < arc1.end) {
         intersectsLevel0 = true;
         break;
       }
@@ -126,7 +133,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
       hasIntersection = false;
       for (let j = 0; j < i; j++) {
         const arc2 = Object.values(arcs)[j];
-        if (i != j && arc1.level == arc2.level && arc1.start < arc2.end && arc2.start < arc1.end) {
+        if (i != j && arc1.level === arc2.level && arc1.start < arc2.end && arc2.start < arc1.end) {
           hasIntersection = true;
           arc1.level++;
           break;
@@ -149,7 +156,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
   }
 
   for (const arc of Object.values(arcs)) {
-    if (arc.length != 1) {
+    if (arc.length !== 1) {
       const radius = Constants.centerMargin - 10 - arc.level * 16;
       const angleOffset = Math.atan(7 / radius);
       let svgArc = d3
@@ -190,7 +197,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
       .attr('r', 7)
       .style('fill', '#f0f0f0');
 
-    if (arc.startIndex == country.index) {
+    if (arc.startIndex === country.index) {
       let markerPosition = [country.unitX * radius, country.unitY * radius];
       drawCategoryMarkers(centerNode, markerPosition, categoriesPerCountry[country.index]);
     }

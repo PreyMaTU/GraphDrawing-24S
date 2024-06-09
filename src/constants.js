@@ -10,6 +10,7 @@ export default {
   countryNameOffset: 20,
 
   categoryCount: 11,
+  countryCount: 35,
 
   categoryIndices: {
     shooting: 0,
