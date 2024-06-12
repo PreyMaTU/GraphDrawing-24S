@@ -424,7 +424,11 @@ export function visualize(countries, regions, medalType) {
   countryNodes
     .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))
     .append('g')
-    .attr('transform', c => `translate(${c.x}, ${c.y}) scale(0.025) translate(-800, -800)`)
+    .attr('transform', c => `translate(${
+      c.x + c.unitX * Constants.countryIconOffset
+    }, ${
+      c.y + c.unitY * Constants.countryIconOffset
+    }) scale(0.025) translate(-700, -700)`)
     .html(c => replaceIconFillColor(c.svgIcon, regionsColors(c.region)));
 
   return body;

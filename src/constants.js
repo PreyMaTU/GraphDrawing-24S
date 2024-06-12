@@ -7,7 +7,8 @@ export default {
   centerTimeTicksPercent: 0.75,
   backgroundColor: '#ffffff',
   edgeBaseColorIntensity: 0.15,
-  countryNameOffset: 20,
+  countryNameOffset: 50,
+  countryIconOffset: 25,
   timeSteps: 5,
 
   categoryCount: 11,
