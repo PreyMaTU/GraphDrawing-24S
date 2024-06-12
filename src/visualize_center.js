@@ -31,10 +31,10 @@ function drawCategoryMarkers(svg, position, categories) {
     const h = svg.append('g');
 
     let count = 8;
-    let radius = 4;
+    let radius = 5;
     if (Constants.categoryIndices[category] < 3) {
       count = 3;
-      radius = 1.5;
+      radius = 2;
     }
     const xOffset = circleCoordX(Constants.categoryIndices[category], count, radius);
     const yOffset = circleCoordY(Constants.categoryIndices[category], count, radius);
@@ -142,27 +142,35 @@ export function visualizeCenter(svg, countries, regions, medalType) {
     }
   }
 
+  const marginToBars = 15;
+  const circleRadius = 8;
+  const layerSpacing = 2;
+  const arcRadius = 3;
+  
+  const circleDiameter = 2 * circleRadius;
+  const layerOffset = circleDiameter + layerSpacing;
+
   for (const country of countries) {
     const arc = arcs[categoriesPerCountry[country.index]];
-    const radius = Constants.centerMargin - 10 - arc.level * 16;
+    const radius = Constants.centerMargin - marginToBars - arc.level * layerOffset;
     centerNode
       .append('line')
       .attr('x1', country.unitX * radius)
       .attr('y1', country.unitY * radius)
       .attr('x2', country.unitX * Constants.centerMargin)
       .attr('y2', country.unitY * Constants.centerMargin)
-      .style('stroke', '#aaa')
-      .style('stroke-width', 1);
+      .style('stroke', '#ccc')
+      .style('stroke-width', 2);
   }
 
   for (const arc of Object.values(arcs)) {
     if (arc.length !== 1) {
-      const radius = Constants.centerMargin - 10 - arc.level * 16;
-      const angleOffset = Math.atan(7 / radius);
+      const radius = Constants.centerMargin - marginToBars - arc.level * layerOffset;
+      const angleOffset = Math.atan(circleRadius / radius);
       let svgArc = d3
         .arc()
-        .innerRadius(radius - 2)
-        .outerRadius(radius + 2)
+        .innerRadius(radius - arcRadius)
+        .outerRadius(radius + arcRadius)
         .startAngle(arc.start - angleOffset)
         .endAngle(arc.end + angleOffset)
         .cornerRadius(10);
@@ -172,29 +180,29 @@ export function visualizeCenter(svg, countries, regions, medalType) {
         .attr('d', svgArc)
         .style('fill', '#f0f0f0')
         .style('stroke', 'white')
-        .style('stroke-width', 0.5);
+        .style('stroke-width', 2);
     } else {
       const angle = (arc.start + arc.end) * 0.5;
-      const radius = Constants.centerMargin - 10 - arc.level * 16;
+      const radius = Constants.centerMargin - marginToBars - arc.level * layerOffset;
       centerNode
         .append('circle')
         .attr('cx', radius * Math.sin(angle))
         .attr('cy', radius * -Math.cos(angle))
-        .attr('r', 7)
+        .attr('r', circleRadius)
         .style('fill', '#f0f0f0')
-        .style('stroke', 'white')
-        .style('stroke-width', 0.5);
+        .style('stroke', 'none')
+        //.style('stroke-width', 1);
     }
   }
 
   for (const country of countries) {
     const arc = arcs[categoriesPerCountry[country.index]];
-    const radius = Constants.centerMargin - 10 - arc.level * 16;
+    const radius = Constants.centerMargin - marginToBars - arc.level * layerOffset;
     centerNode
       .append('circle')
       .attr('cx', country.unitX * radius)
       .attr('cy', country.unitY * radius)
-      .attr('r', 7)
+      .attr('r', circleRadius)
       .style('fill', '#f0f0f0');
 
     if (arc.startIndex === country.index) {

@@ -155,6 +155,9 @@ export function visualize(countries, regions, medalType) {
     data.push(Math.round(Math.exp(Math.log(smallest) + i * step)));
   }
 
+  // Draw the center node
+  visualizeCenter(svg, countries, regions, medalType);
+
   const gdpCircles = svg
     .selectAll('.gdp-level')
     .data(data)
@@ -423,9 +426,6 @@ export function visualize(countries, regions, medalType) {
     .append('g')
     .attr('transform', c => `translate(${c.x}, ${c.y}) scale(0.025) translate(-800, -800)`)
     .html(c => replaceIconFillColor(c.svgIcon, regionsColors(c.region)));
-
-  // Draw the center node
-  visualizeCenter(svg, countries, regions, medalType);
 
   return body;
 }
