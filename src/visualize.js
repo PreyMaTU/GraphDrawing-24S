@@ -420,8 +420,8 @@ export function visualize(countries, regions, medalType) {
 
       // Font-styling
       .style('font-size', isMedalCount ? '0.8em' : '1em')
-      .style('font-family', '"Outfit", sans-serif')
-      .style('opacity', c => (c.isDefunct() ? Constants.defunctOpacity : 1.0));
+      .style('font-family', '"Outfit", sans-serif');
+      //.style('opacity', c => (c.isDefunct() ? Constants.defunctOpacity : 1.0));
   }
 
   addCountryNodeText(
@@ -437,6 +437,11 @@ export function visualize(countries, regions, medalType) {
     c => `${c.medals(medalType)} Medals`,
     true
   );
+
+  // Uncomment line 424 and remove this if only the text should be grayed out
+  countryNodes
+    .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))
+    .style('opacity', c => (c.isDefunct() ? Constants.defunctOpacity : 1.0));
 
   countryNodes
     .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))
