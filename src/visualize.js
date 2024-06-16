@@ -4,6 +4,7 @@ import * as d3Regression from 'd3-regression';
 
 import Constants from './constants.js';
 import { visualizeCenter } from './visualize_center.js';
+import { capitalize } from './country.js';
 
 /**
  * @typedef {import('./country.js').Country} Country
@@ -95,7 +96,19 @@ function computeTickYearArray(countries, medalType) {
   // Find the first and last year an olympic game happened for the filtered
   // countries and medal types
   const { firstYear, lastYear } = countries
-    .map(c => c.getFirstAndLastYear(medalType))
+    .map(c => {
+      const validTypes = (medalType.toLowerCase() === 'total') ? ['Gold', 'Silver', 'Bronze'] : [capitalize(medalType)];
+      const payload = { firstYear: 1896, lastYear: 2024 };
+
+      for (const vt of validTypes) {
+        const catFirstLast = c.getFirstAndLastYear(vt);
+      
+        payload.firstYear = Math.max(payload.firstYear, catFirstLast.firstYear);
+        payload.lastYear = Math.min(payload.lastYear, catFirstLast.lastYear);
+      }
+
+      return payload;
+    })
     .reduce(
       ({ firstYear, lastYear }, c) => ({
         firstYear: Math.min(firstYear, c.firstYear),
@@ -331,7 +344,7 @@ export function visualize(countries, regions, medalType) {
     .attr('x2', c => c.x)
     .attr('y2', c => c.y)
     .style('stroke', '#aaa')
-    .style('stroke-width', 2); // TODO
+    .style('stroke-width', 2); // Optional TODO: Change line width after defunct
 
   // Draw the bar diagramm
   edges

@@ -1,4 +1,5 @@
-import Constants from './constants.js';
+import { capitalize } from './country.js';
+import Constants from './constants.js'
 import * as d3 from 'd3';
 
 /**
@@ -18,11 +19,19 @@ function circleCoordY(index, count, radius) {
 
 function categoriesForCountry(country, medalType) {
   let categories = [];
+
   for (const category of Object.keys(Constants.categoryIndices)) {
-    if (country[category][medalType].size != 0) {
-      categories.push(category);
+    // medalType is undefined if something else but 'gold', 'silver' or 'bronze' is used in the function calling this one.
+    // (I.e., 'total'). Hence this line as hotfix.
+    const validTypes = !medalType ? ['goldMedals', 'silverMedals', 'bronzeMedals'] : [medalType];
+
+    for (const mt of validTypes) {
+      if (country[category][mt].size !== 0 && !categories.includes(category)) {
+        categories.push(category);
+      }
     }
   }
+  
   return categories;
 }
 
@@ -85,8 +94,11 @@ export function visualizeCenter(svg, countries, regions, medalType) {
   const arcs = {};
   const categoriesPerCountry = {};
 
+  let mappedName = "";
+  if (medalType) mappedName = mapNameMapping[capitalize(medalType)];
+
   for (const country of countries) {
-    let categories = categoriesForCountry(country, mapNameMapping[medalType]);
+    let categories = categoriesForCountry(country, mappedName);
     categoriesPerCountry[country.index] = categories;
 
     let angle = (2.0 * Math.PI * country.index) / countries.length;

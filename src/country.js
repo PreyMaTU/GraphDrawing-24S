@@ -303,9 +303,13 @@ export class Country {
     const countTimeline = {};
 
     this.forEachCategory(cat => {
-      cat.medalCountTimeline(medalType).forEach(([year, count]) => {
-        countTimeline[year] = (countTimeline[year] || 0) + count;
-      });
+      const validTypes = (medalType.toLowerCase() === 'total') ? ['Gold', 'Silver', 'Bronze'] : [capitalize(medalType)];
+      for (const vt of validTypes) {
+        if (!cat.medalCountTimeline(vt)) continue;
+        cat.medalCountTimeline(vt).forEach(([year, count]) => {
+          countTimeline[year] = (countTimeline[year] || 0) + count;
+        });
+      }
     });
 
     return Object.entries(countTimeline).map(([year, count]) => [this, year, count]);
@@ -358,3 +362,5 @@ export class Region {
     return this.countries.length;
   }
 }
+
+export const capitalize = s => s && s[0].toUpperCase() + s.slice(1);

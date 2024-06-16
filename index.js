@@ -35,7 +35,7 @@ async function prepareData(medalType) {
   return [orderIntoOrderedRegions(filteredCountries, medalType), categoryCombinations];
 }
 
-const medalType = 'Gold';
+const medalType = 'total';
 
 const [{ countries, regions }, categoryCombinations] = await prepareData(medalType.toLowerCase());
 const body = visualize(countries, regions, medalType);
