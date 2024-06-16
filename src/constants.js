@@ -6,6 +6,7 @@ export default {
   centerNodePercent: 0.5,
   centerTimeTicksPercent: 0.75,
   backgroundColor: '#ffffff',
+  defunctOpacity: 0.6, // 0.0 - 1.0
   edgeBaseColorIntensity: 0.15,
   countryNameOffset: 50,
   countryIconOffset: 25,

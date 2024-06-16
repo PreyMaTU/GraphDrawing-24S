@@ -421,7 +421,7 @@ export function visualize(countries, regions, medalType) {
       // Font-styling
       .style('font-size', isMedalCount ? '0.8em' : '1em')
       .style('font-family', '"Outfit", sans-serif')
-      .style('opacity', c => (c.isDefunct() ? 0.5 : 1.0));
+      .style('opacity', c => (c.isDefunct() ? Constants.defunctOpacity : 1.0));
   }
 
   addCountryNodeText(
