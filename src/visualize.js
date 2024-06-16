@@ -400,9 +400,9 @@ export function visualize(countries, regions, medalType) {
   /**
    * @param {function(Country):number} xoff
    * @param {function(Country):number} yoff
-   * @param {function(Country):string} text
+   * @param {function(Country):string} inputText
    */
-  function addCountryNodeText(xoff, yoff, text, isMedalCount) {
+  function addCountryNodeText(xoff, yoff, inputText, isMedalCount) {
     countryNodes
       .append('text')
       .attr('x', c => c.x + c.unitX * Constants.countryNameOffset + xoff(c))
@@ -416,17 +416,18 @@ export function visualize(countries, regions, medalType) {
         const y = nodes[i].getAttribute('y');
         return `rotate(${angle}, ${x}, ${y})`;
       })
-      .text(text)
+      .text(inputText)
 
       // Font-styling
-      .style('font-size', `${isMedalCount ? '0.8em' : '1em'}`)
-      .style('font-family', '"Outfit", sans-serif');
+      .style('font-size', isMedalCount ? '0.8em' : '1em')
+      .style('font-family', '"Outfit", sans-serif')
+      .style('opacity', c => (c.isDefunct() ? 0.5 : 1.0));
   }
 
   addCountryNodeText(
     c => c.unitNormalX * 8 * (c.x >= Constants.center.x ? 1 : -1),
     c => c.unitNormalY * 8 * (c.x >= Constants.center.x ? 1 : -1),
-    c => c.displayName,
+    c => c.displayName, // c.displayName + (c.isDefunct() ? ' (†)' : '')
     false
   );
 

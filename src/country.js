@@ -317,6 +317,10 @@ export class Country {
 
     return Object.entries(countTimeline).map(([year, count]) => [this, year, count]);
   }
+
+  isDefunct() {
+    return this.defunctSince && this.defunctSince < new Date().getFullYear();
+  }
 }
 
 export class CombinedCountry extends Country {
