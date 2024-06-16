@@ -440,8 +440,8 @@ export function visualize(countries, regions, medalType) {
 
   // Uncomment line 424 and remove this if only the text should be grayed out
   countryNodes
-    .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))
-    .style('opacity', c => (c.isDefunct() ? Constants.defunctOpacity : 1.0));
+    .selectAll((c, i, n) => (c.isDefunct() ? [n[i]] : []))
+    .style('opacity', Constants.defunctOpacity);
 
   countryNodes
     .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))
