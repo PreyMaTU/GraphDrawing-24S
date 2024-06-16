@@ -288,20 +288,26 @@ function fixDataProblems(countries) {
     ['UAR', 'EGY'], // United Arab Republic is now Egypt according to https://en.wikipedia.org/wiki/List_of_IOC_country_codes
   ];
 
-  // ROC = Russian Olympic Committee
-  // URS = Soviet Union
-  // BOH = Bohemia
-  // GDR = Germany (Soviet)
-  // ANZ = Australia + New Zealand
-  // YUG = Yugoslavia
-  // IOA = Independent
-  // WIF = West Indies Federation (Jamaica, Antigua, Barbados, etc.)
-  // FRG = Germany (Western)
-  // SCG = Serbia & Montenegro
-  // UAR = United Arab Republic (Egypt)
-  // EUN = United Team (Former Soviet Republics, 1992)
-  // AHO = Dutch Antilles (2012 IOA, then dutch or aruba)
-  // TCH = Czechoslovakia
+  // Hard coded deletions.
+  const deletions = [
+    'IOA', // Independent athletes (usually due to political reasons, see https://www.olympedia.org/countries/IOA)
+    'EUN', // Former soviet republics after dissolution of USSR
+  ]
+
+  // [Merge]  ROC = Russian Olympic Committee
+  // [Left]   URS = Soviet Union
+  // [Merge]  BOH = Bohemia
+  // [Left]   GDR = Germany (Soviet)
+  // [Left]   ANZ = Australia + New Zealand
+  // [Left]   YUG = Yugoslavia
+  // [Delete] IOA = Independent
+  // [Left]   WIF = West Indies Federation (Jamaica, Antigua, Barbados, etc.)
+  // [Merge]  FRG = Germany (Western)
+  // [Left]   SCG = Serbia & Montenegro
+  // [Merge]  UAR = United Arab Republic (Egypt)
+  // [Delete] EUN = United Team (Former Soviet Republics, 1992)
+  // [Merge]  AHO = Dutch Antilles (2012 IOA, then dutch or aruba)
+  // [Left]   TCH = Czechoslovakia
 
   for (const mergePair of merges) {
     const [a, b] = mergePair;
@@ -311,5 +317,9 @@ function fixDataProblems(countries) {
 
     oldCountry.mergeWith(newCountry);
     countries.delete(oldCountry.noc);
+  }
+
+  for (const noc of deletions) {
+    countries.delete(noc);
   }
 }
