@@ -101,13 +101,13 @@ function computeTickYearArray(countries, medalType) {
         medalType.toLowerCase() === 'total' ?
           ['Gold', 'Silver', 'Bronze']
         : [capitalize(medalType)];
-      const payload = { firstYear: 1896, lastYear: 2024 };
+      const payload = { firstYear: Number.MAX_SAFE_INTEGER, lastYear: Number.MIN_SAFE_INTEGER };
 
       for (const vt of validTypes) {
         const catFirstLast = c.getFirstAndLastYear(vt);
 
-        payload.firstYear = Math.max(payload.firstYear, catFirstLast.firstYear);
-        payload.lastYear = Math.min(payload.lastYear, catFirstLast.lastYear);
+        payload.firstYear = Math.min(payload.firstYear, catFirstLast.firstYear);
+        payload.lastYear = Math.max(payload.lastYear, catFirstLast.lastYear);
       }
 
       return payload;
