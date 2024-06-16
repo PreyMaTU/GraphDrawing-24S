@@ -1,5 +1,5 @@
 import { capitalize } from './country.js';
-import Constants from './constants.js'
+import Constants from './constants.js';
 import * as d3 from 'd3';
 
 /**
@@ -31,7 +31,7 @@ function categoriesForCountry(country, medalType) {
       }
     }
   }
-  
+
   return categories;
 }
 
@@ -94,7 +94,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
   const arcs = {};
   const categoriesPerCountry = {};
 
-  let mappedName = "";
+  let mappedName = '';
   if (medalType) mappedName = mapNameMapping[capitalize(medalType)];
 
   for (const country of countries) {
@@ -158,7 +158,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
   const circleRadius = 8;
   const layerSpacing = 2;
   const arcRadius = 3;
-  
+
   const circleDiameter = 2 * circleRadius;
   const layerOffset = circleDiameter + layerSpacing;
 
@@ -202,8 +202,8 @@ export function visualizeCenter(svg, countries, regions, medalType) {
         .attr('cy', radius * -Math.cos(angle))
         .attr('r', circleRadius)
         .style('fill', '#f0f0f0')
-        .style('stroke', 'none')
-        //.style('stroke-width', 1);
+        .style('stroke', 'none');
+      //.style('stroke-width', 1);
     }
   }
 

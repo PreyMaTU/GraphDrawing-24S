@@ -303,7 +303,10 @@ export class Country {
     const countTimeline = {};
 
     this.forEachCategory(cat => {
-      const validTypes = (medalType.toLowerCase() === 'total') ? ['Gold', 'Silver', 'Bronze'] : [capitalize(medalType)];
+      const validTypes =
+        medalType.toLowerCase() === 'total' ?
+          ['Gold', 'Silver', 'Bronze']
+        : [capitalize(medalType)];
       for (const vt of validTypes) {
         if (!cat.medalCountTimeline(vt)) continue;
         cat.medalCountTimeline(vt).forEach(([year, count]) => {

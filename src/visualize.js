@@ -97,12 +97,15 @@ function computeTickYearArray(countries, medalType) {
   // countries and medal types
   const { firstYear, lastYear } = countries
     .map(c => {
-      const validTypes = (medalType.toLowerCase() === 'total') ? ['Gold', 'Silver', 'Bronze'] : [capitalize(medalType)];
+      const validTypes =
+        medalType.toLowerCase() === 'total' ?
+          ['Gold', 'Silver', 'Bronze']
+        : [capitalize(medalType)];
       const payload = { firstYear: 1896, lastYear: 2024 };
 
       for (const vt of validTypes) {
         const catFirstLast = c.getFirstAndLastYear(vt);
-      
+
         payload.firstYear = Math.max(payload.firstYear, catFirstLast.firstYear);
         payload.lastYear = Math.min(payload.lastYear, catFirstLast.lastYear);
       }
@@ -437,11 +440,13 @@ export function visualize(countries, regions, medalType) {
   countryNodes
     .selectAll((c, i, n) => (c.svgIcon ? [n[i]] : []))
     .append('g')
-    .attr('transform', c => `translate(${
-      c.x + c.unitX * Constants.countryIconOffset
-    }, ${
-      c.y + c.unitY * Constants.countryIconOffset
-    }) scale(0.025) translate(-700, -700)`)
+    .attr(
+      'transform',
+      c =>
+        `translate(${c.x + c.unitX * Constants.countryIconOffset}, ${
+          c.y + c.unitY * Constants.countryIconOffset
+        }) scale(0.025) translate(-700, -700)`
+    )
     .html(c => replaceIconFillColor(c.svgIcon, regionsColors(c.region)));
 
   return body;
