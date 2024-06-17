@@ -12,7 +12,7 @@ export async function loadDatasets() {
   const [olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations] =
     await Promise.all([
       readProjectRelativeFile('../data/olympics.json'),
-      readProjectRelativeFile('../data/gdp_per_capita.csv'),
+      readProjectRelativeFile('../data/rgdppc.csv'),
       readProjectRelativeFile('../data/country_codes.csv'),
       readProjectRelativeFile('../data/ioc_codes.csv'),
       readProjectRelativeFile('../data/olympic_committees.csv'),
@@ -314,8 +314,8 @@ function fixDataProblems(countries) {
 
     const oldCountry = countries.get(a);
     const newCountry = countries.get(b);
-
-    oldCountry.mergeWith(newCountry);
+    
+    newCountry.mergeWith(oldCountry);
     countries.delete(oldCountry.noc);
   }
 
