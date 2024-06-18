@@ -188,19 +188,6 @@ export function visualize(countries, regions, medalType) {
 
   d3.select(gdpCircles.nodes()[0]).style('stroke-width', 2);
 
-  /*
-  const regionSeparators = svg
-    .selectAll('.region-line')
-    .data(regions)
-    .enter()
-    .append('line')
-    .attr('x1', r => circleCoordX(r.firstCountry.index, countries.length, Constants.radius))
-    .attr('y1', r => circleCoordY(r.firstCountry.index, countries.length, Constants.radius))
-    .attr('x2', Constants.center.x)
-    .attr('y2', Constants.center.y)
-    .style('stroke', 'lightgrey');
-  */
-
   // Draw each country's GDP as blue line
   svg
     .selectAll('.gdp')
@@ -238,12 +225,6 @@ export function visualize(countries, regions, medalType) {
     .attr('stroke', Constants.spiralColor)
     .attr('fill', 'none');
 
-  // Draw the bundled edges
-  const edgeColors = d3
-    .scaleOrdinal()
-    .domain(Object.keys(Constants.categoryColors))
-    .range(Object.keys(Constants.categoryColors).map(name => Constants.categoryColors[name]));
-
   const regionsColors = d3
     .scaleOrdinal()
     .domain(Object.keys(Constants.regionColors))
@@ -257,82 +238,7 @@ export function visualize(countries, regions, medalType) {
     .attr('class', c => `edge ${c.noc}`);
 
   const { firstYear, lastYear, tickYears } = computeTickYearArray(countries, medalType);
-  /*
-  const tickScaleX = d3.scaleLinear().domain([firstYear, lastYear]);
-  const tickScaleY = d3.scaleLinear().domain([firstYear, lastYear]);
-
   
-  function countryTicks(country) {
-    // Compute the offsets to the bundle to draw the tick line across it
-    const halfWidth = country.filledSportCategories().length / 2 + 2;
-    const xlen = country.unitNormalX * 8.0; //halfWidth;
-    const ylen = country.unitNormalY * 8.0; //halfWidth;
-
-    // Compute the starting position for the first tick based on the country
-    // position and center margins
-    const startX = Constants.center.x + country.unitX * Constants.centerMargin;
-    const startY = Constants.center.y + country.unitY * Constants.centerMargin;
-
-    tickScaleX.range([startX, country.x]);
-    tickScaleY.range([startY, country.y]);
-
-    // Make an array of positions on the bundle for the ticks
-    return tickYears.map(year => {
-      const x = tickScaleX(year);
-      const y = tickScaleY(year);
-
-      return { x, y, xlen, ylen, year };
-    });
-  }
-
-  edges
-    .selectAll('.ticks')
-    .data(c => [c])
-    .enter()
-    .append('g')
-    .attr('class', () => 'ticks')
-    .selectAll('.tick')
-    .data(countryTicks)
-    .enter()
-    .append('line')
-    .attr('x1', t => t.x + t.xlen)
-    .attr('y1', t => t.y + t.ylen)
-    .attr('x2', t => t.x - t.xlen)
-    .attr('y2', t => t.y - t.ylen)
-    .style('stroke', t => (t.year % 5 === 0 ? 'black' : 'none'))
-    .style('stroke-width', 0.5);
-  */
-
-  /** @param {Country} country */
-  function filledSportCategoriesWithGradientScale(country) {
-    const fr = Constants.centerMargin;
-    const ticksBegin = Constants.centerMargin;
-    const clearRadius = ticksBegin - fr;
-    const usableGradientLength = Constants.radius - fr;
-    const ticksRangeBegin = clearRadius / usableGradientLength;
-
-    const maxMedalCount = country.getMaxMedalCountPerGame(medalType);
-
-    // Helper function to mix the background color with the category's color
-    function mixedBaseColor(category) {
-      return d3
-        .scaleLinear()
-        .domain([0, 1])
-        .range([Constants.backgroundColor, edgeColors(category.name)])(
-        Constants.edgeBaseColorIntensity
-      );
-    }
-
-    // Compute scales for the categories
-    return country.filledSportCategories().map(e => ({
-      ...e,
-      positionScale: d3.scaleLinear().domain([firstYear, lastYear]).range([ticksRangeBegin, 1]),
-      colorScale: d3
-        .scaleLinear()
-        .domain([0, maxMedalCount])
-        .range([mixedBaseColor(e.category), edgeColors(e.category.name)]),
-    }));
-  }
 
   const positionScale = d3
     .scaleLinear()
@@ -386,16 +292,6 @@ export function visualize(countries, regions, medalType) {
     .append('g')
     .attr('class', c => `country ${c.noc}`);
 
-  // countryNodes
-  //   .append('circle')
-  //   .attr('cx', c => c.x)
-  //   .attr('cy', c => c.y)
-  //   .attr('r', 2)
-  //   .style('fill', c =>
-  //     c.region === 'No Region' ? 'black'
-  //     : c.gdp < 1 ? 'darkred'
-  //     : 'steelblue'
-  //   );
 
   /**
    * @param {function(Country):number} xoff
