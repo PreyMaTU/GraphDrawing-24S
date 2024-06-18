@@ -161,32 +161,37 @@ export function visualize(countries, regions, medalType) {
       `@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');`
     );
 
-  // Draw circles for each n years
   const gdpScale = computeCountryPositions(countries);
-  const [smallest, biggest] = gdpScale.domain();
-
-  const step = (Math.log(biggest) - Math.log(smallest)) / (Constants.timeSteps - 1);
-  const data = [];
-  for (let i = 0; i < Constants.timeSteps; i++) {
-    data.push(Math.round(Math.exp(Math.log(smallest) + i * step)));
-  }
+  const { firstYear, lastYear, tickYears } = computeTickYearArray(countries, medalType);
 
   // Draw the center node
   visualizeCenter(svg, countries, regions, medalType);
 
-  const gdpCircles = svg
-    .selectAll('.gdp-level')
-    .data(data)
+  // Draw circles for each n years
+  const timeScale = d3
+    .scaleLinear()
+    .domain([firstYear, lastYear])
+    .range([Constants.centerMargin, Constants.radius]);
+
+  const timeRingYears= [];
+  for( let i= 0; i< Constants.timeSteps; i++ ) {
+    timeRingYears.push(
+      Math.round( firstYear+ i* (lastYear- firstYear) / (Constants.timeSteps-1) ) 
+    );
+  }
+
+  const timeRings = svg
+    .selectAll('.time-circle')
+    .data(timeRingYears)
     .enter()
     .append('circle')
+    .attr('class', '.time-circle')
     .attr('cx', Constants.center.x)
     .attr('cy', Constants.center.y)
-    .attr('r', c => gdpScale(c));
-
-  // Style
-  gdpCircles.style('stroke', 'lightgrey').style('fill', 'none');
-
-  d3.select(gdpCircles.nodes()[0]).style('stroke-width', 2);
+    .attr('r', c => timeScale(c))
+    .style('stroke', 'lightgrey')
+    .style('fill', 'none')
+    .style('stroke-width', (c, i, n) => i === 0 ? 2 : 1 );
 
   // Draw each country's GDP as blue line
   svg
@@ -237,14 +242,6 @@ export function visualize(countries, regions, medalType) {
     .append('g')
     .attr('class', c => `edge ${c.noc}`);
 
-  const { firstYear, lastYear, tickYears } = computeTickYearArray(countries, medalType);
-  
-
-  const positionScale = d3
-    .scaleLinear()
-    .domain([firstYear, lastYear])
-    .range([Constants.centerMargin, Constants.radius]);
-
   // Draw the axis
   edges
     .append('line')
@@ -264,22 +261,22 @@ export function visualize(countries, regions, medalType) {
     .attr(
       'x1',
       ([c, year, count]) =>
-        Constants.center.x + c.unitX * positionScale(year) + c.unitNormalX * Math.log(count) * 2.0
+        Constants.center.x + c.unitX * timeScale(year) + c.unitNormalX * Math.log(count) * 2.0
     )
     .attr(
       'y1',
       ([c, year, count]) =>
-        Constants.center.y + c.unitY * positionScale(year) + c.unitNormalY * Math.log(count) * 2.0
+        Constants.center.y + c.unitY * timeScale(year) + c.unitNormalY * Math.log(count) * 2.0
     )
     .attr(
       'x2',
       ([c, year, count]) =>
-        Constants.center.x + c.unitX * positionScale(year) - c.unitNormalX * Math.log(count) * 2.0
+        Constants.center.x + c.unitX * timeScale(year) - c.unitNormalX * Math.log(count) * 2.0
     )
     .attr(
       'y2',
       ([c, year, count]) =>
-        Constants.center.y + c.unitY * positionScale(year) - c.unitNormalY * Math.log(count) * 2.0
+        Constants.center.y + c.unitY * timeScale(year) - c.unitNormalY * Math.log(count) * 2.0
     )
     .style('stroke', 'black')
     .style('stroke-width', 5);
