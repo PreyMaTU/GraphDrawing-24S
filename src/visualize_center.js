@@ -8,12 +8,12 @@ import * as d3 from 'd3';
  */
 
 function circleCoordX(index, count, radius) {
-  const angle = (2 * Math.PI * index) / count;
+  const angle = (2 * Math.PI * index) / (count+1);
   return radius * Math.sin(angle);
 }
 
 function circleCoordY(index, count, radius) {
-  const angle = (2 * Math.PI * index) / count;
+  const angle = (2 * Math.PI * index) / (count+1);
   return radius * -Math.cos(angle);
 }
 
@@ -101,7 +101,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
     let categories = categoriesForCountry(country, mappedName);
     categoriesPerCountry[country.index] = categories;
 
-    let angle = (2.0 * Math.PI * country.index) / countries.length;
+    let angle = (2.0 * Math.PI * country.index) / (countries.length+1);
     if (!(categories in arcs)) {
       arcs[categories] = {
         start: angle - angleOffset,

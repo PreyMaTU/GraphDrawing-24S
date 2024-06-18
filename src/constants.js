@@ -11,6 +11,7 @@ export default {
   countryNameOffset: 50,
   countryIconOffset: 25,
   timeSteps: 5,
+  scaleTickLength: 5,
 
   categoryCount: 11,
   countryCount: 35,

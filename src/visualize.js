@@ -33,7 +33,7 @@ function circleCoordX(index, count, radius) {
     return;
   }
 
-  const angle = (2 * Math.PI * index) / count;
+  const angle = (2 * Math.PI * index) / (count+ 1);
   return Constants.center['x'] + radius * Math.sin(angle);
 }
 
@@ -45,7 +45,7 @@ function circleCoordY(index, count, radius) {
     return;
   }
 
-  const angle = (2 * Math.PI * index) / count;
+  const angle = (2 * Math.PI * index) / (count+ 1);
   return Constants.center['y'] + radius * -Math.cos(angle);
 }
 
@@ -128,6 +128,25 @@ function computeTickYearArray(countries, medalType) {
   );
 
   return { firstYear, lastYear, tickYears };
+}
+
+
+/**
+ * @param {Country[]} countries 
+ */
+function makeScaleLine( countries ) {
+  const x= circleCoordX(countries.length, countries.length, Constants.radius);
+  const y= circleCoordY(countries.length, countries.length, Constants.radius);
+  const dx= x - Constants.center.x;
+  const dy= y - Constants.center.y;
+  
+  const unitX= dx / Constants.radius;
+  const unitY= dy / Constants.radius;
+
+  const unitNormalX= unitY;
+  const unitNormalY= -unitX;
+  
+  return {x, y, unitX, unitY, unitNormalX, unitNormalY};
 }
 
 /**
@@ -348,5 +367,35 @@ export function visualize(countries, regions, medalType) {
     )
     .html(c => replaceIconFillColor(c.svgIcon, regionsColors(c.region)));
 
+  // Draw the scale 
+  const scaleLineVector= makeScaleLine(countries);
+  svg
+    .selectAll('.scale-line')
+    .data( [scaleLineVector] )
+    .enter()
+    .append('line')
+    .attr('x1', ({unitX}) => Constants.center.x + unitX * Constants.centerMargin)
+    .attr('y1', ({unitY}) => Constants.center.y + unitY * Constants.centerMargin)
+    .attr('x2', ({x}) => x)
+    .attr('y2', ({y}) => y)
+    .style('stroke', '#aaa')
+    .style('stroke-width', 2);
+
+  const timeScaleGroup= svg
+    .append('g')
+    .attr('class', 'time-scale');
+
+  timeScaleGroup
+    .selectAll('line')
+    .data( timeRingYears )
+    .enter()
+    .append('line')
+    .attr('x1', year => Constants.center.x + scaleLineVector.unitX * timeScale(year))
+    .attr('y1', year => Constants.center.y + scaleLineVector.unitY * timeScale(year))
+    .attr('x2', year => Constants.center.x + scaleLineVector.unitX * timeScale(year) - scaleLineVector.unitNormalX * Constants.scaleTickLength)
+    .attr('y2', year => Constants.center.y + scaleLineVector.unitY * timeScale(year) - scaleLineVector.unitNormalY * Constants.scaleTickLength)
+    .style('stroke', 'black')
+    .style('stroke-width', 3);
+  
   return body;
 }
