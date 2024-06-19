@@ -298,7 +298,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', c => Constants.center.y + c.unitY * Constants.centerMargin)
     .attr('x2', c => c.x)
     .attr('y2', c => c.y)
-    .style('stroke', '#aaa')
+    .style('stroke', Constants.edgeColor)
     .style('stroke-width', 2); // Optional TODO: Change line width after defunct
 
   // Draw the bar diagramm
@@ -407,7 +407,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', ({ unitY }) => Constants.center.y + unitY * Constants.centerMargin)
     .attr('x2', ({ x }) => x)
     .attr('y2', ({ y }) => y)
-    .style('stroke', '#aaa')
+    .style('stroke', Constants.edgeColor)
     .style('stroke-width', 2);
 
   function addScaleLineTicks(
@@ -432,7 +432,7 @@ export function visualize(countries, regions, medalType) {
       .attr('x2', item => scaleLineTickCoordX(scale(item), scaleLineVector, tickDirection))
       .attr('y2', item => scaleLineTickCoordY(scale(item), scaleLineVector, tickDirection))
       .style('stroke', tickColor)
-      .style('stroke-width', 3);
+      .style('stroke-width', 2);
 
     elementGroup
       .selectAll('text')
@@ -454,15 +454,16 @@ export function visualize(countries, regions, medalType) {
         return `rotate(${angle}, ${x}, ${y})`;
       })
       .text(textFunc)
-      .style('font-size', '0.8em')
-      .style('font-family', '"Outfit", sans-serif');
+      .style('font-size', '0.7em')
+      .style('font-family', '"Outfit", sans-serif')
+      .attr('fill', tickColor); // Remove for black font
   }
 
   addScaleLineTicks(
     timeRingYears,
     timeScale,
     'time-scale',
-    'black',
+    Constants.edgeColor,
     'right',
     3,
     1,

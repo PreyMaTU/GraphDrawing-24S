@@ -1,7 +1,7 @@
 export default {
-  width: 1050,
-  height: 1050,
-  margin: 150,
+  width: 1150,
+  height: 1150,
+  margin: 200,
   centerMarginPercent: 0.4,
   centerNodePercent: 0.5,
   centerTimeTicksPercent: 0.75,
@@ -55,6 +55,7 @@ export default {
 
   spiralColor: '#c098f7',
   defunctColor: '#BBB',
+  edgeColor: '#aaa',
 
   // Computed
   radius: -1,
