@@ -10,18 +10,27 @@ export async function readProjectRelativeFile(relativePath) {
 }
 
 export async function loadDatasets() {
-  const [olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations, popData] =
-    await Promise.all([
-      readProjectRelativeFile('../data/olympics.json'),
-      readProjectRelativeFile(`../data/${Constants.usePPP ? 'data_ppp.csv' : 'data_rgdp.csv'}`),
-      readProjectRelativeFile('../data/country_codes.csv'),
-      readProjectRelativeFile('../data/ioc_codes.csv'),
-      readProjectRelativeFile('../data/olympic_committees.csv'),
-      readProjectRelativeFile('../data/country_display_names.csv'),
-      readProjectRelativeFile('../data/defunct_countries.json'),
-      readProjectRelativeFile('../data/category_combinations.csv'),
-      readProjectRelativeFile('../data/data_country_pop.csv'),
-    ]);
+  const [
+    olympics,
+    gdp,
+    codes,
+    ioc,
+    committees,
+    displayNames,
+    defunct,
+    categoryCombinations,
+    popData,
+  ] = await Promise.all([
+    readProjectRelativeFile('../data/olympics.json'),
+    readProjectRelativeFile(`../data/${Constants.usePPP ? 'data_ppp.csv' : 'data_rgdp.csv'}`),
+    readProjectRelativeFile('../data/country_codes.csv'),
+    readProjectRelativeFile('../data/ioc_codes.csv'),
+    readProjectRelativeFile('../data/olympic_committees.csv'),
+    readProjectRelativeFile('../data/country_display_names.csv'),
+    readProjectRelativeFile('../data/defunct_countries.json'),
+    readProjectRelativeFile('../data/category_combinations.csv'),
+    readProjectRelativeFile('../data/data_country_pop.csv'),
+  ]);
 
   // Drop the header row and convert it into an indexing object
   const gdpRows = d3.csvParseRows(gdp);
@@ -114,7 +123,7 @@ export function mergeIntoGdpData(gdp, codes, ioc, popData) {
         entry[valueName] = -1;
       }
     }
-  }
+  };
 
   findInWorldBankData(gdp, 'value');
   findInWorldBankData(popData, 'totalPop');
@@ -262,12 +271,11 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType, useA
   if (useAbsolute) {
     countries.sort((a, b) => b.medals(medalType) - a.medals(medalType));
   } else {
-    countries
-      .sort((a, b) => {
-        if (a.goldMedals < 5) return 1;
-        if (b.goldMedals < 5) return -1;
-        return b.relativeMedals() - a.relativeMedals();
-      });
+    countries.sort((a, b) => {
+      if (a.goldMedals < 5) return 1;
+      if (b.goldMedals < 5) return -1;
+      return b.relativeMedals() - a.relativeMedals();
+    });
   }
 
   const rest = countries.slice(count);
@@ -282,7 +290,7 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType, useA
       return;
     }
 
-    const avgGdp = group.reduce((sum, c) => sum + c.gdp, 0) / group.length;         // Calculate combined GDP
+    const avgGdp = group.reduce((sum, c) => sum + c.gdp, 0) / group.length; // Calculate combined GDP
     const combinedCountry = new CombinedCountry(
       `${name} (Other)`, // old: Residuals, Remaining; We need to keep the label short so it fits onto the medal
       '',
@@ -296,7 +304,7 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType, useA
     combinedCountry.mergeWith(...group);
 
     // Calculate medals per million
-    const totalPop = group.reduce((sum, c) => sum + c.pop, 0);   // Calculate combined population
+    const totalPop = group.reduce((sum, c) => sum + c.pop, 0); // Calculate combined population
     combinedCountry.pop = totalPop;
     combinedCountry.medalsPerMil = (combinedCountry.totalMedals / totalPop) * 1000000;
 

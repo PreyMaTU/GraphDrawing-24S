@@ -112,7 +112,7 @@ function computeCountryPositions(countries) {
     country.gdpX = circleCoordX(country.index, countries.length, country.gdpVectorLength);
     country.gdpY = circleCoordY(country.index, countries.length, country.gdpVectorLength);
 
-    console.log( `${country.name} - GDP: ${country.gdp}, Index: ${country.index}, Position: (${country.x}, ${country.y})` )
+    // console.log( `${country.name} - GDP: ${country.gdp}, Index: ${country.index}, Position: (${country.x}, ${country.y})` )
   }
 
   return gdpScale;
@@ -375,7 +375,10 @@ export function visualize(countries, regions, medalType) {
   addCountryNodeText(
     c => c.unitNormalX * 8 * (c.x >= Constants.center.x ? -1 : 1),
     c => c.unitNormalY * 8 * (c.x >= Constants.center.x ? -1 : 1),
-    c => Constants.useAbsolute ? c.totalMedals + ' Medals' : `${Math.trunc(c.medalsPerMil * 10) / 10} mpm | ${c.totalMedals} Medals`,
+    c =>
+      Constants.useAbsolute ?
+        c.totalMedals + ' Medals'
+      : `${Math.trunc(c.medalsPerMil * 10) / 10} mpm | ${c.totalMedals} Medals`,
     true
   );
 
