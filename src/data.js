@@ -30,6 +30,12 @@ export async function loadDatasets() {
     return obj;
   }, {});
 
+  const popDataRows = d3.csvParseRows(popData);
+  popDataRows.columns = popDataRows.shift().reduce((obj, columnName, idx) => {
+    obj[columnName] = idx;
+    return obj;
+  }, {});
+
   return {
     olympics: JSON.parse(olympics),
     gdp: gdpRows,
@@ -39,7 +45,7 @@ export async function loadDatasets() {
     displayNames: d3.csvParse(displayNames),
     defunct: JSON.parse(defunct),
     categoryCombinations: d3.csvParse(categoryCombinations),
-    popData: d3.csvParse(popData),
+    popData: popDataRows,
   };
 }
 
@@ -91,7 +97,6 @@ export function mergeIntoGdpData(gdp, codes, ioc, popData) {
     const countryCodeColumnIndex = dataset.columns['Country Code'];
     for (const row of dataset) {
       // Find the last non-empty column
-      console.log(row);
       const val = row.findLast(column => column && column.trim().length);
       const iso3 = row[countryCodeColumnIndex];
 
