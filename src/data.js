@@ -242,7 +242,10 @@ export function orderIntoOrderedRegions(countries, medalType, orderByRegions = f
     });
   } else {
     countries
-      .sort((a, b) => b.medals(medalType) - a.medals(medalType))
+      .sort((a, b) => {
+        if (Constants.useAbsolute) return b.medals(medalType) - a.medals(medalType);
+        else return b.medalsPerMil - a.medalsPerMil;
+      })
       .forEach(c => (c.index = idx++));
   }
 
@@ -259,7 +262,12 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType, useA
   if (useAbsolute) {
     countries.sort((a, b) => b.medals(medalType) - a.medals(medalType));
   } else {
-    countries.sort((a, b) => b.relativeMedals() - a.relativeMedals());
+    countries
+      .sort((a, b) => {
+        if (a.goldMedals < 5) return 1;
+        if (b.goldMedals < 5) return -1;
+        return b.relativeMedals() - a.relativeMedals();
+      });
   }
 
   const rest = countries.slice(count);
