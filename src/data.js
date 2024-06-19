@@ -3,22 +3,24 @@ import stripBom from 'strip-bom';
 import fs from 'node:fs/promises';
 
 import { CombinedCountry, Country, SportCategory, Medal, Region } from './country.js';
+import Constants from './constants.js';
 
 export async function readProjectRelativeFile(relativePath) {
   return stripBom(await fs.readFile(new URL(relativePath, import.meta.url), 'utf-8'));
 }
 
 export async function loadDatasets() {
-  const [olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations] =
+  const [olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations, popData] =
     await Promise.all([
       readProjectRelativeFile('../data/olympics.json'),
-      readProjectRelativeFile('../data/rgdppc.csv'),
+      readProjectRelativeFile(`../data/${Constants.usePPP ? 'data_ppp.csv' : 'data_rgdp.csv'}`),
       readProjectRelativeFile('../data/country_codes.csv'),
       readProjectRelativeFile('../data/ioc_codes.csv'),
       readProjectRelativeFile('../data/olympic_committees.csv'),
       readProjectRelativeFile('../data/country_display_names.csv'),
       readProjectRelativeFile('../data/defunct_countries.json'),
       readProjectRelativeFile('../data/category_combinations.csv'),
+      readProjectRelativeFile('../data/country_pop.csv'),
     ]);
 
   // Drop the header row and convert it into an indexing object
@@ -58,7 +60,7 @@ export function mapIntoRegionTable(committees) {
  * @param {*} ioc   The ioc dataset (i.e., ioc_codes.csv).
  * @returns A map in the format [IOC_code (NOC)] -> [{ full_country_name, gdp_per_cap, iso2 }]
  */
-export function mergeIntoGdpData(gdp, codes, ioc) {
+export function mergeIntoGdpData(gdp, codes, ioc, popData) {
   const countriesByIso = new Map();
 
   // Populate the map with the iso code as key and the country name as value (noc needed later)
@@ -84,32 +86,36 @@ export function mergeIntoGdpData(gdp, codes, ioc) {
     }
   }
 
-  // Find gdp per capita based on the country name
-  const gdpCountryCodeColumnIndex = gdp.columns['Country Code'];
-  for (const row of gdp) {
-    // Find the last non-empty column
-    const gdpPerCap = row.findLast(column => column && column.trim().length);
-    const iso3 = row[gdpCountryCodeColumnIndex];
+  const findInWorldBankData = (dataset, valueName) => {
+    const countryCodeColumnIndex = dataset.columns['Country Code'];
+    for (const row of dataset) {
+      // Find the last non-empty column
+      const val = row.findLast(column => column && column.trim().length);
+      const iso3 = row[countryCodeColumnIndex];
 
-    const entry = countriesByIso.get(iso3);
-    if (!entry) {
-      continue;
-    }
+      const entry = countriesByIso.get(iso3);
+      if (!entry) {
+        continue;
+      }
 
-    // Try to parse the gdp value into a number
-    entry.value = Math.round(parseFloat(gdpPerCap));
-    if (Number.isNaN(entry.value)) {
-      console.error(
-        `Could not parse GDP value for ISO '${entry.iso2}' / IOC '${entry.ioc}' with value: '${gdpPerCap}'`
-      );
-      entry.value = -1;
+      // Try to parse the value into a number
+      entry[valueName] = Math.round(parseFloat(val));
+      if (Number.isNaN(entry[valueName])) {
+        console.error(
+          `Could not parse ${valueName} for ISO '${entry.iso2}' / IOC '${entry.ioc}' with value: '${val}'`
+        );
+        entry[valueName] = -1;
+      }
     }
   }
 
+  findInWorldBankData(gdp, 'value');
+  findInWorldBankData(popData, 'totalPop');
+
   // Swap iso3 and noc around, we want noc to be the key
   const countriesByNoc = new Map();
-  for (const { ioc, name, value, iso2 } of countriesByIso.values()) {
-    countriesByNoc.set(ioc, { name, value, iso2 });
+  for (const { ioc, name, value, iso2, totalPop } of countriesByIso.values()) {
+    countriesByNoc.set(ioc, { name, value, iso2, totalPop });
   }
 
   return countriesByNoc;
@@ -134,8 +140,8 @@ export function mergeIntoCountries(olympics, countryGdps, regions, displayNames,
         console.error(`Could not find a region for NOC '${node.noc}'`);
       }
 
-      const { value: gdp, iso2 } = gdpData || { value: 0, iso2: '' };
-      const country = new Country(node.name, node.noc, region || 'No Region', gdp, iso2);
+      const { value: gdp, iso2, totalPop } = gdpData || { value: 0, iso2: '', totalPop: -1 };
+      const country = new Country(node.name, node.noc, region || 'No Region', gdp, iso2, totalPop);
       countries.set(node.noc, country);
     }
   }
@@ -170,7 +176,10 @@ export function mergeIntoCountries(olympics, countryGdps, regions, displayNames,
   const countryArray = [...countries.values()];
   for (const country of countryArray) {
     country.countMedals();
+    country.medalsPerMil = (country.totalMedals / country.pop) * 1000000;
   }
+
+  console.log()
 
   return countryArray;
 }

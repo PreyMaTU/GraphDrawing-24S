@@ -5,7 +5,6 @@ export default {
   centerMarginPercent: 0.4,
   centerNodePercent: 0.5,
   centerTimeTicksPercent: 0.75,
-  backgroundColor: '#ffffff',
   defunctOpacity: 0.6, // 0.0 - 1.0
   edgeBaseColorIntensity: 0.15,
   countryNameOffset: 50,
@@ -15,6 +14,8 @@ export default {
 
   categoryCount: 11,
   countryCount: 35,
+
+  usePPP: true,
 
   categoryIndices: {
     shooting: 0,
@@ -53,6 +54,7 @@ export default {
     'No Region': '#FFFFFF',
   },
 
+  backgroundColor: '#ffffff',
   spiralColor: '#c098f7',
   defunctColor: '#BBB',
   edgeColor: '#aaa',

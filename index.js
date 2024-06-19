@@ -13,10 +13,10 @@ import { visualize_category_venn_diagramm } from './src/category_venn_diagramm.j
 import Constants from './src/constants.js';
 
 async function loadData() {
-  const { olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations } =
+  const { olympics, gdp, codes, ioc, committees, displayNames, defunct, categoryCombinations, popData } =
     await loadDatasets();
   const regionTable = mapIntoRegionTable(committees);
-  const countryGdps = mergeIntoGdpData(gdp, codes, ioc);
+  const countryGdps = mergeIntoGdpData(gdp, codes, ioc, popData);
   const countries = mergeIntoCountries(olympics, countryGdps, regionTable, displayNames, defunct);
 
   return [countries, categoryCombinations];

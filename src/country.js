@@ -162,11 +162,12 @@ export class Country {
    * @param {number} gdp GPD per capita
    * @param {string} iso2
    */
-  constructor(name, noc, region, gdp, iso2) {
+  constructor(name, noc, region, gdp, iso2, pop) {
     this.name = name;
     this.noc = noc;
     this.region = region;
     this.gdp = gdp;
+    this.pop = pop;
     this.iso2 = iso2;
 
     this.customDisplayName = '';
@@ -175,6 +176,8 @@ export class Country {
     this.goldMedals = 0;
     this.silverMedals = 0;
     this.bronzeMedals = 0;
+
+    this.medalsPerMil = 0;
 
     this.shooting = new SportCategory('shooting');
     this.fighting = new SportCategory('fighting');
