@@ -16,6 +16,7 @@ export default {
   countryCount: 35,
 
   usePPP: true,
+  useAbsolute: false,
 
   categoryIndices: {
     shooting: 0,

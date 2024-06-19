@@ -27,7 +27,8 @@ async function prepareData(medalType) {
   const filteredCountries = filterTopCountriesAndMergeRest(
     countries,
     Constants.countryCount,
-    medalType
+    medalType,
+    Constants.useAbsolute,
   );
 
   await Promise.all(filteredCountries.map(c => c.loadIcon()));

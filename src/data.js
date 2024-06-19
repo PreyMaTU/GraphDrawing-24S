@@ -186,8 +186,6 @@ export function mergeIntoCountries(olympics, countryGdps, regions, displayNames,
     country.medalsPerMil = (country.totalMedals / country.pop) * 1000000;
   }
 
-  console.log()
-
   return countryArray;
 }
 
@@ -256,9 +254,13 @@ export function orderIntoOrderedRegions(countries, medalType, orderByRegions = f
  * @param {number} count
  * @param {string} medalType
  */
-export function filterTopCountriesAndMergeRest(countries, count, medalType) {
+export function filterTopCountriesAndMergeRest(countries, count, medalType, useAbsolute) {
   // Split the data into top countries and rest
-  countries.sort((a, b) => b.medals(medalType) - a.medals(medalType));
+  if (useAbsolute) {
+    countries.sort((a, b) => b.medals(medalType) - a.medals(medalType));
+  } else {
+    countries.sort((a, b) => b.relativeMedals() - a.relativeMedals());
+  }
 
   const rest = countries.slice(count);
   countries = countries.slice(0, count);
@@ -272,8 +274,7 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType) {
       return;
     }
 
-    // Calculate combined GDP
-    const avgGdp = group.reduce((sum, c) => sum + c.gdp, 0) / group.length;
+    const avgGdp = group.reduce((sum, c) => sum + c.gdp, 0) / group.length;         // Calculate combined GDP
     const combinedCountry = new CombinedCountry(
       `${name} (Other)`, // old: Residuals, Remaining; We need to keep the label short so it fits onto the medal
       '',
@@ -285,6 +286,11 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType) {
 
     // Merge all countries in the group
     combinedCountry.mergeWith(...group);
+
+    // Calculate medals per million
+    const totalPop = group.reduce((sum, c) => sum + c.pop, 0);   // Calculate combined population
+    combinedCountry.pop = totalPop;
+    combinedCountry.medalsPerMil = (combinedCountry.totalMedals / totalPop) * 1000000;
 
     countries.push(combinedCountry);
   });

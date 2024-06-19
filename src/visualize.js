@@ -375,7 +375,7 @@ export function visualize(countries, regions, medalType) {
   addCountryNodeText(
     c => c.unitNormalX * 8 * (c.x >= Constants.center.x ? -1 : 1),
     c => c.unitNormalY * 8 * (c.x >= Constants.center.x ? -1 : 1),
-    c => `${c.medals(medalType)} Medals`,
+    c => `${c.medalsPerMil} Medals`,
     true
   );
 

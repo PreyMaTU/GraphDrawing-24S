@@ -222,6 +222,10 @@ export class Country {
     return this[type.toLowerCase() + 'Medals'];
   }
 
+  relativeMedals() {
+    return this.medalsPerMil;
+  }
+
   /** @param {function(SportCategory, string):void} fn  */
   forEachCategory(fn) {
     for (const category of Country.Categories) {
