@@ -33,7 +33,7 @@ function circleCoordX(index, count, radius) {
     return;
   }
 
-  const angle = (2 * Math.PI * index) / (count+ 1);
+  const angle = (2 * Math.PI * index) / (count + 1);
   return Constants.center['x'] + radius * Math.sin(angle);
 }
 
@@ -45,18 +45,38 @@ function circleCoordY(index, count, radius) {
     return;
   }
 
-  const angle = (2 * Math.PI * index) / (count+ 1);
+  const angle = (2 * Math.PI * index) / (count + 1);
   return Constants.center['y'] + radius * -Math.cos(angle);
 }
 
-function scaleLineTickCoordX( radius, scaleLineVector, tickDirection, radiusOffset= 0, distanceOffset= 0 ) {
-  const normalVectorSign= { none: 0, left: -1, right: +1 }[ tickDirection ];
-  return Constants.center.x + scaleLineVector.unitX * (radiusOffset+ radius) - scaleLineVector.unitNormalX * normalVectorSign* (distanceOffset+ Constants.scaleTickLength);
+function scaleLineTickCoordX(
+  radius,
+  scaleLineVector,
+  tickDirection,
+  radiusOffset = 0,
+  distanceOffset = 0
+) {
+  const normalVectorSign = { none: 0, left: -1, right: +1 }[tickDirection];
+  return (
+    Constants.center.x +
+    scaleLineVector.unitX * (radiusOffset + radius) -
+    scaleLineVector.unitNormalX * normalVectorSign * (distanceOffset + Constants.scaleTickLength)
+  );
 }
 
-function scaleLineTickCoordY( radius, scaleLineVector, tickDirection, radiusOffset= 0, distanceOffset= 0 ) {
-  const normalVectorSign= { none: 0, left: -1, right: +1 }[ tickDirection ];
-  return Constants.center.y + scaleLineVector.unitY * (radiusOffset+ radius) - scaleLineVector.unitNormalY * normalVectorSign* (distanceOffset+ Constants.scaleTickLength);
+function scaleLineTickCoordY(
+  radius,
+  scaleLineVector,
+  tickDirection,
+  radiusOffset = 0,
+  distanceOffset = 0
+) {
+  const normalVectorSign = { none: 0, left: -1, right: +1 }[tickDirection];
+  return (
+    Constants.center.y +
+    scaleLineVector.unitY * (radiusOffset + radius) -
+    scaleLineVector.unitNormalY * normalVectorSign * (distanceOffset + Constants.scaleTickLength)
+  );
 }
 
 /**  @param {Country[]} countries */
@@ -140,23 +160,22 @@ function computeTickYearArray(countries, medalType) {
   return { firstYear, lastYear, tickYears };
 }
 
-
 /**
- * @param {Country[]} countries 
+ * @param {Country[]} countries
  */
-function makeScaleLine( countries ) {
-  const x= circleCoordX(countries.length, countries.length, Constants.radius);
-  const y= circleCoordY(countries.length, countries.length, Constants.radius);
-  const dx= x - Constants.center.x;
-  const dy= y - Constants.center.y;
-  
-  const unitX= dx / Constants.radius;
-  const unitY= dy / Constants.radius;
+function makeScaleLine(countries) {
+  const x = circleCoordX(countries.length, countries.length, Constants.radius);
+  const y = circleCoordY(countries.length, countries.length, Constants.radius);
+  const dx = x - Constants.center.x;
+  const dy = y - Constants.center.y;
 
-  const unitNormalX= unitY;
-  const unitNormalY= -unitX;
-  
-  return {x, y, unitX, unitY, unitNormalX, unitNormalY};
+  const unitX = dx / Constants.radius;
+  const unitY = dy / Constants.radius;
+
+  const unitNormalX = unitY;
+  const unitNormalY = -unitX;
+
+  return { x, y, unitX, unitY, unitNormalX, unitNormalY };
 }
 
 /**
@@ -202,12 +221,12 @@ export function visualize(countries, regions, medalType) {
     .domain([firstYear, lastYear])
     .range([Constants.centerMargin, Constants.radius]);
 
-  const timeRingYears= [];
-  for( let i= 0; i< Constants.timeSteps; i++ ) {
-    const year= Math.round( firstYear+ i* (lastYear- firstYear) / (Constants.timeSteps-1) );
-    const error= year % 4;
-    const adjustment= error <= 2 ? -error : 4- error;
-    timeRingYears.push( year + adjustment );
+  const timeRingYears = [];
+  for (let i = 0; i < Constants.timeSteps; i++) {
+    const year = Math.round(firstYear + (i * (lastYear - firstYear)) / (Constants.timeSteps - 1));
+    const error = year % 4;
+    const adjustment = error <= 2 ? -error : 4 - error;
+    timeRingYears.push(year + adjustment);
   }
 
   const timeRings = svg
@@ -221,7 +240,7 @@ export function visualize(countries, regions, medalType) {
     .attr('r', c => timeScale(c))
     .style('stroke', 'lightgrey')
     .style('fill', 'none')
-    .style('stroke-width', (c, i, n) => i === 0 ? 2 : 1 );
+    .style('stroke-width', (c, i, n) => (i === 0 ? 2 : 1));
 
   // Draw each country's GDP as blue line
   svg
@@ -319,7 +338,6 @@ export function visualize(countries, regions, medalType) {
     .append('g')
     .attr('class', c => `country ${c.noc}`);
 
-
   /**
    * @param {function(Country):number} xoff
    * @param {function(Country):number} yoff
@@ -344,7 +362,7 @@ export function visualize(countries, regions, medalType) {
       // Font-styling
       .style('font-size', isMedalCount ? '0.8em' : '1em')
       .style('font-family', '"Outfit", sans-serif');
-      //.style('opacity', c => (c.isDefunct() ? Constants.defunctOpacity : 1.0)); // [link 1]
+    //.style('opacity', c => (c.isDefunct() ? Constants.defunctOpacity : 1.0)); // [link 1]
   }
 
   addCountryNodeText(
@@ -378,78 +396,101 @@ export function visualize(countries, regions, medalType) {
     )
     .html(c => replaceIconFillColor(c.svgIcon, regionsColors(c.region)));
 
-  // Draw the scale 
-  const scaleLineVector= makeScaleLine(countries);
+  // Draw the scale
+  const scaleLineVector = makeScaleLine(countries);
   svg
     .selectAll('.scale-line')
-    .data( [scaleLineVector] )
+    .data([scaleLineVector])
     .enter()
     .append('line')
-    .attr('x1', ({unitX}) => Constants.center.x + unitX * Constants.centerMargin)
-    .attr('y1', ({unitY}) => Constants.center.y + unitY * Constants.centerMargin)
-    .attr('x2', ({x}) => x)
-    .attr('y2', ({y}) => y)
+    .attr('x1', ({ unitX }) => Constants.center.x + unitX * Constants.centerMargin)
+    .attr('y1', ({ unitY }) => Constants.center.y + unitY * Constants.centerMargin)
+    .attr('x2', ({ x }) => x)
+    .attr('y2', ({ y }) => y)
     .style('stroke', '#aaa')
     .style('stroke-width', 2);
 
-  function addScaleLineTicks(data, scale, groupName, tickColor, tickDirection, roff, doff, textFunc) {
-    const elementGroup= svg
-      .append('g')
-      .attr('class', groupName);
+  function addScaleLineTicks(
+    data,
+    scale,
+    groupName,
+    tickColor,
+    tickDirection,
+    roff,
+    doff,
+    textFunc
+  ) {
+    const elementGroup = svg.append('g').attr('class', groupName);
 
     elementGroup
       .selectAll('line')
-      .data( data )
+      .data(data)
       .enter()
       .append('line')
       .attr('x1', item => scaleLineTickCoordX(scale(item), scaleLineVector, 'none'))
       .attr('y1', item => scaleLineTickCoordY(scale(item), scaleLineVector, 'none'))
-      .attr('x2', item => scaleLineTickCoordX(scale(item), scaleLineVector, tickDirection) )
-      .attr('y2', item => scaleLineTickCoordY(scale(item), scaleLineVector, tickDirection) )
+      .attr('x2', item => scaleLineTickCoordX(scale(item), scaleLineVector, tickDirection))
+      .attr('y2', item => scaleLineTickCoordY(scale(item), scaleLineVector, tickDirection))
       .style('stroke', tickColor)
       .style('stroke-width', 3);
 
     elementGroup
       .selectAll('text')
-      .data( data )
+      .data(data)
       .enter()
       .append('text')
-      .attr('x', item => scaleLineTickCoordX(scale(item), scaleLineVector, tickDirection, roff, doff ) )
-      .attr('y', item => scaleLineTickCoordY(scale(item), scaleLineVector, tickDirection, roff, doff ) )
+      .attr('x', item =>
+        scaleLineTickCoordX(scale(item), scaleLineVector, tickDirection, roff, doff)
+      )
+      .attr('y', item =>
+        scaleLineTickCoordY(scale(item), scaleLineVector, tickDirection, roff, doff)
+      )
       .attr('text-anchor', 'end')
       .attr('dominant-baseline', 'central')
       .attr('transform', (c, i, nodes) => {
-        const angle = 360 * ( 1 - 1 / (countries.length + 1) ) + 90;
+        const angle = 360 * (1 - 1 / (countries.length + 1)) + 90;
         const x = nodes[i].getAttribute('x');
         const y = nodes[i].getAttribute('y');
         return `rotate(${angle}, ${x}, ${y})`;
       })
-      .text( textFunc )
+      .text(textFunc)
       .style('font-size', '0.8em')
-      .style('font-family', '"Outfit", sans-serif')
+      .style('font-family', '"Outfit", sans-serif');
   }
 
   addScaleLineTicks(
-    timeRingYears, timeScale,
-    'time-scale', 'black', 'right', 3, 1,
+    timeRingYears,
+    timeScale,
+    'time-scale',
+    'black',
+    'right',
+    3,
+    1,
     year => `${year}`
   );
 
-
   addScaleLineTicks(
     // Only draw the outer most and center tick
-    [timeRingYears[0], timeRingYears[Math.floor(timeRingYears.length / 2)], timeRingYears[timeRingYears.length-1]],
+    [
+      timeRingYears[0],
+      timeRingYears[Math.floor(timeRingYears.length / 2)],
+      timeRingYears[timeRingYears.length - 1],
+    ],
     timeScale,
-    'gdp-scale', Constants.spiralColor, 'left', 3, 1,
+    'gdp-scale',
+    Constants.spiralColor,
+    'left',
+    3,
+    1,
     year => {
       // As we want to draw the gdp ticks exactly on the time rings we need to convert
       // their positions back to a gdp value by using the inverse scale
-      const position= timeScale( year );
-      const gdp= Math.round( gdpScale.invert( position ) / 1000 );
-      
+      const position = timeScale(year);
+      const gdp = Math.round(gdpScale.invert(position) / 1000);
+
       return `$${gdp}k`;
     }
   );
-  
+
   return body;
 }

@@ -292,7 +292,7 @@ function fixDataProblems(countries) {
   const deletions = [
     'IOA', // Independent athletes (usually due to political reasons, see https://www.olympedia.org/countries/IOA)
     'EUN', // Former soviet republics after dissolution of USSR
-  ]
+  ];
 
   // [Merge]  ROC = Russian Olympic Committee
   // [Left]   URS = Soviet Union
@@ -314,7 +314,7 @@ function fixDataProblems(countries) {
 
     const oldCountry = countries.get(a);
     const newCountry = countries.get(b);
-    
+
     newCountry.mergeWith(oldCountry);
     countries.delete(oldCountry.noc);
   }
