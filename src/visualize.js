@@ -49,6 +49,16 @@ function circleCoordY(index, count, radius) {
   return Constants.center['y'] + radius * -Math.cos(angle);
 }
 
+function scaleLineTickCoordX( radius, scaleLineVector, tickDirection, radiusOffset= 0, distanceOffset= 0 ) {
+  const normalVectorSign= { none: 0, left: -1, right: +1 }[ tickDirection ];
+  return Constants.center.x + scaleLineVector.unitX * (radiusOffset+ radius) - scaleLineVector.unitNormalX * normalVectorSign* (distanceOffset+ Constants.scaleTickLength);
+}
+
+function scaleLineTickCoordY( radius, scaleLineVector, tickDirection, radiusOffset= 0, distanceOffset= 0 ) {
+  const normalVectorSign= { none: 0, left: -1, right: +1 }[ tickDirection ];
+  return Constants.center.y + scaleLineVector.unitY * (radiusOffset+ radius) - scaleLineVector.unitNormalY * normalVectorSign* (distanceOffset+ Constants.scaleTickLength);
+}
+
 /**  @param {Country[]} countries */
 function computeCountryPositions(countries) {
   // Create scale for positioning
@@ -381,21 +391,64 @@ export function visualize(countries, regions, medalType) {
     .style('stroke', '#aaa')
     .style('stroke-width', 2);
 
-  const timeScaleGroup= svg
-    .append('g')
-    .attr('class', 'time-scale');
+  function addScaleLineTicks(data, scale, groupName, tickColor, tickDirection, roff, doff, textFunc) {
+    const elementGroup= svg
+      .append('g')
+      .attr('class', groupName);
 
-  timeScaleGroup
-    .selectAll('line')
-    .data( timeRingYears )
-    .enter()
-    .append('line')
-    .attr('x1', year => Constants.center.x + scaleLineVector.unitX * timeScale(year))
-    .attr('y1', year => Constants.center.y + scaleLineVector.unitY * timeScale(year))
-    .attr('x2', year => Constants.center.x + scaleLineVector.unitX * timeScale(year) - scaleLineVector.unitNormalX * Constants.scaleTickLength)
-    .attr('y2', year => Constants.center.y + scaleLineVector.unitY * timeScale(year) - scaleLineVector.unitNormalY * Constants.scaleTickLength)
-    .style('stroke', 'black')
-    .style('stroke-width', 3);
+    elementGroup
+      .selectAll('line')
+      .data( data )
+      .enter()
+      .append('line')
+      .attr('x1', item => scaleLineTickCoordX(scale(item), scaleLineVector, 'none'))
+      .attr('y1', item => scaleLineTickCoordY(scale(item), scaleLineVector, 'none'))
+      .attr('x2', item => scaleLineTickCoordX(scale(item), scaleLineVector, tickDirection) )
+      .attr('y2', item => scaleLineTickCoordY(scale(item), scaleLineVector, tickDirection) )
+      .style('stroke', tickColor)
+      .style('stroke-width', 3);
+
+    elementGroup
+      .selectAll('text')
+      .data( data )
+      .enter()
+      .append('text')
+      .attr('x', item => scaleLineTickCoordX(scale(item), scaleLineVector, tickDirection, roff, doff ) )
+      .attr('y', item => scaleLineTickCoordY(scale(item), scaleLineVector, tickDirection, roff, doff ) )
+      .attr('text-anchor', 'end')
+      .attr('dominant-baseline', 'central')
+      .attr('transform', (c, i, nodes) => {
+        const angle = 360 * ( 1 - 1 / (countries.length + 1) ) + 90;
+        const x = nodes[i].getAttribute('x');
+        const y = nodes[i].getAttribute('y');
+        return `rotate(${angle}, ${x}, ${y})`;
+      })
+      .text( textFunc )
+      .style('font-size', '0.8em')
+      .style('font-family', '"Outfit", sans-serif')
+  }
+
+  addScaleLineTicks(
+    timeRingYears, timeScale,
+    'time-scale', 'black', 'right', 3, 1,
+    year => `${year}`
+  );
+
+
+  addScaleLineTicks(
+    // Only draw the outer most and center tick
+    [timeRingYears[0], timeRingYears[Math.floor(timeRingYears.length / 2)], timeRingYears[timeRingYears.length-1]],
+    timeScale,
+    'gdp-scale', Constants.spiralColor, 'left', 3, 1,
+    year => {
+      // As we want to draw the gdp ticks exactly on the time rings we need to convert
+      // their positions back to a gdp value by using the inverse scale
+      const position= timeScale( year );
+      const gdp= Math.round( gdpScale.invert( position ) / 1000 );
+      
+      return `$${gdp}k`;
+    }
+  );
   
   return body;
 }
