@@ -20,7 +20,7 @@ export async function loadDatasets() {
       readProjectRelativeFile('../data/country_display_names.csv'),
       readProjectRelativeFile('../data/defunct_countries.json'),
       readProjectRelativeFile('../data/category_combinations.csv'),
-      readProjectRelativeFile('../data/country_pop.csv'),
+      readProjectRelativeFile('../data/data_country_pop.csv'),
     ]);
 
   // Drop the header row and convert it into an indexing object
@@ -39,6 +39,7 @@ export async function loadDatasets() {
     displayNames: d3.csvParse(displayNames),
     defunct: JSON.parse(defunct),
     categoryCombinations: d3.csvParse(categoryCombinations),
+    popData: d3.csvParse(popData),
   };
 }
 
@@ -90,6 +91,7 @@ export function mergeIntoGdpData(gdp, codes, ioc, popData) {
     const countryCodeColumnIndex = dataset.columns['Country Code'];
     for (const row of dataset) {
       // Find the last non-empty column
+      console.log(row);
       const val = row.findLast(column => column && column.trim().length);
       const iso3 = row[countryCodeColumnIndex];
 
