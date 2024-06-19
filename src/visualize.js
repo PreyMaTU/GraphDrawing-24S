@@ -204,9 +204,10 @@ export function visualize(countries, regions, medalType) {
 
   const timeRingYears= [];
   for( let i= 0; i< Constants.timeSteps; i++ ) {
-    timeRingYears.push(
-      Math.round( firstYear+ i* (lastYear- firstYear) / (Constants.timeSteps-1) ) 
-    );
+    const year= Math.round( firstYear+ i* (lastYear- firstYear) / (Constants.timeSteps-1) );
+    const error= year % 4;
+    const adjustment= error <= 2 ? -error : 4- error;
+    timeRingYears.push( year + adjustment );
   }
 
   const timeRings = svg
