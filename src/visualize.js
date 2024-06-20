@@ -252,7 +252,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', c => c.gdpY + (c.unitNormalY * c.gdpVectorLength) / 30)
     .attr('x2', c => c.gdpX - (c.unitNormalX * c.gdpVectorLength) / 30)
     .attr('y2', c => c.gdpY - (c.unitNormalY * c.gdpVectorLength) / 30)
-    .style('stroke', Constants.spiralColor)
+    .style('stroke', Constants.lightMode.spiralColor)
     .style('stroke-width', 2.5);
 
   // Draw linear regression as a spiral
@@ -276,13 +276,17 @@ export function visualize(countries, regions, medalType) {
     .attr('class', '.spiral')
     .attr('d', spiral(countries))
     .attr('stroke-width', '2.5')
-    .attr('stroke', Constants.spiralColor)
+    .attr('stroke', Constants.lightMode.spiralColor)
     .attr('fill', 'none');
 
   const regionsColors = d3
     .scaleOrdinal()
-    .domain(Object.keys(Constants.regionColors))
-    .range(Object.keys(Constants.regionColors).map(name => Constants.regionColors[name]));
+    .domain(Object.keys(Constants.lightMode.regionColors))
+    .range(
+      Object.keys(Constants.lightMode.regionColors).map(
+        name => Constants.lightMode.regionColors[name]
+      )
+    );
 
   const edges = svg
     .selectAll('.edge')
@@ -298,7 +302,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', c => Constants.center.y + c.unitY * Constants.centerMargin)
     .attr('x2', c => c.x)
     .attr('y2', c => c.y)
-    .style('stroke', Constants.edgeColor)
+    .style('stroke', Constants.lightMode.edgeColor)
     .style('stroke-width', 2); // Optional TODO: Change line width after defunct
 
   // Draw the bar diagramm
@@ -410,7 +414,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', ({ unitY }) => Constants.center.y + unitY * Constants.centerMargin)
     .attr('x2', ({ x }) => x)
     .attr('y2', ({ y }) => y)
-    .style('stroke', Constants.edgeColor)
+    .style('stroke', Constants.lightMode.edgeColor)
     .style('stroke-width', 2);
 
   function addScaleLineTicks(
@@ -466,7 +470,7 @@ export function visualize(countries, regions, medalType) {
     timeRingYears,
     timeScale,
     'time-scale',
-    Constants.edgeColor,
+    Constants.lightMode.edgeColor,
     'right',
     3,
     1,
@@ -482,7 +486,7 @@ export function visualize(countries, regions, medalType) {
     ],
     timeScale,
     'gdp-scale',
-    Constants.spiralColor,
+    Constants.lightMode.spiralColor,
     'left',
     3,
     1,

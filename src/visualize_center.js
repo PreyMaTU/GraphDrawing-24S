@@ -52,7 +52,7 @@ function drawCategoryMarkers(svg, position, categories) {
     let dotColor = '#aaa';
     if (categories.indexOf(category) >= 0) {
       dotSize = 1;
-      dotColor = Constants.categoryColors[category];
+      dotColor = Constants.lightMode.categoryColors[category];
     }
 
     h.append('circle')

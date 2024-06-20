@@ -22,7 +22,9 @@ export async function loadDatasets() {
     popData,
   ] = await Promise.all([
     readProjectRelativeFile('../data/olympics.json'),
-    readProjectRelativeFile(`../data/${Constants.usePPP ? 'data_ppp.csv' : 'data_rgdp.csv'}`),
+    readProjectRelativeFile(
+      `../data/${Constants.useAbsolute ? 'data_ppp_total.csv' : 'data_ppp.csv'}`
+    ),
     readProjectRelativeFile('../data/country_codes.csv'),
     readProjectRelativeFile('../data/ioc_codes.csv'),
     readProjectRelativeFile('../data/olympic_committees.csv'),
@@ -116,6 +118,11 @@ export function mergeIntoGdpData(gdp, codes, ioc, popData) {
 
       // Try to parse the value into a number
       entry[valueName] = Math.round(parseFloat(val));
+
+      if (Constants.useAbsolute && valueName.toLowerCase() === 'value') {
+        entry[valueName] = Math.trunc((entry[valueName] / 1000000) * 100) / 100;
+      }
+
       if (Number.isNaN(entry[valueName])) {
         console.error(
           `Could not parse ${valueName} for ISO '${entry.iso2}' / IOC '${entry.ioc}' with value: '${val}'`
