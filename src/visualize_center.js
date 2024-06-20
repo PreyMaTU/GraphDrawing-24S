@@ -49,10 +49,10 @@ function drawCategoryMarkers(svg, position, categories) {
     const yOffset = circleCoordY(Constants.categoryIndices[category], count, radius);
 
     let dotSize = 0.4;
-    let dotColor = '#aaa';
+    let dotColor = Constants.colors.centerNodeDotColor;
     if (categories.indexOf(category) >= 0) {
       dotSize = 1;
-      dotColor = Constants.lightMode.categoryColors[category];
+      dotColor = Constants.colors.categoryColors[category];
     }
 
     h.append('circle')
@@ -171,7 +171,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
       .attr('y1', country.unitY * radius)
       .attr('x2', country.unitX * Constants.centerMargin)
       .attr('y2', country.unitY * Constants.centerMargin)
-      .style('stroke', '#ccc')
+      .style('stroke', Constants.colors.edgeColor)
       .style('stroke-width', 2);
   }
 
@@ -190,8 +190,8 @@ export function visualizeCenter(svg, countries, regions, medalType) {
       centerNode
         .append('path')
         .attr('d', svgArc)
-        .style('fill', '#f0f0f0')
-        .style('stroke', 'white')
+        .style('fill', Constants.colors.centerStructureColor)
+        .style('stroke', Constants.colors.backgroundColor)
         .style('stroke-width', 2);
     } else {
       const angle = (arc.start + arc.end) * 0.5;
@@ -201,7 +201,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
         .attr('cx', radius * Math.sin(angle))
         .attr('cy', radius * -Math.cos(angle))
         .attr('r', circleRadius)
-        .style('fill', '#f0f0f0')
+        .style('fill', Constants.colors.centerStructureColor)
         .style('stroke', 'none');
       //.style('stroke-width', 1);
     }
@@ -215,7 +215,7 @@ export function visualizeCenter(svg, countries, regions, medalType) {
       .attr('cx', country.unitX * radius)
       .attr('cy', country.unitY * radius)
       .attr('r', circleRadius)
-      .style('fill', '#f0f0f0');
+      .style('fill', Constants.colors.centerStructureColor);
 
     if (arc.startIndex === country.index) {
       let markerPosition = [country.unitX * radius, country.unitY * radius];

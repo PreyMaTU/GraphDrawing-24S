@@ -200,6 +200,10 @@ export function visualize(countries, regions, medalType) {
     .attr('height', Constants.height)
     .attr('xmlns', 'http://www.w3.org/2000/svg');
 
+  if (Constants.useBackground) {
+    svg.style('background-color', Constants.colors.backgroundColor);
+  }
+
   // Add font family (and other design elements?)
   svg
     .append('defs')
@@ -238,7 +242,7 @@ export function visualize(countries, regions, medalType) {
     .attr('cx', Constants.center.x)
     .attr('cy', Constants.center.y)
     .attr('r', c => timeScale(c))
-    .style('stroke', 'lightgrey')
+    .style('stroke', Constants.colors.timeRingColor)
     .style('fill', 'none')
     .style('stroke-width', (c, i, n) => (i === 0 ? 2 : 1));
 
@@ -252,7 +256,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', c => c.gdpY + (c.unitNormalY * c.gdpVectorLength) / 30)
     .attr('x2', c => c.gdpX - (c.unitNormalX * c.gdpVectorLength) / 30)
     .attr('y2', c => c.gdpY - (c.unitNormalY * c.gdpVectorLength) / 30)
-    .style('stroke', Constants.lightMode.spiralColor)
+    .style('stroke', Constants.colors.spiralColor)
     .style('stroke-width', 2.5);
 
   // Draw linear regression as a spiral
@@ -276,16 +280,14 @@ export function visualize(countries, regions, medalType) {
     .attr('class', '.spiral')
     .attr('d', spiral(countries))
     .attr('stroke-width', '2.5')
-    .attr('stroke', Constants.lightMode.spiralColor)
+    .attr('stroke', Constants.colors.spiralColor)
     .attr('fill', 'none');
 
   const regionsColors = d3
     .scaleOrdinal()
-    .domain(Object.keys(Constants.lightMode.regionColors))
+    .domain(Object.keys(Constants.colors.regionColors))
     .range(
-      Object.keys(Constants.lightMode.regionColors).map(
-        name => Constants.lightMode.regionColors[name]
-      )
+      Object.keys(Constants.colors.regionColors).map(name => Constants.colors.regionColors[name])
     );
 
   const edges = svg
@@ -298,11 +300,11 @@ export function visualize(countries, regions, medalType) {
   // Draw the axis
   edges
     .append('line')
-    .attr('x1', c => Constants.center.x + c.unitX * Constants.centerMargin)
-    .attr('y1', c => Constants.center.y + c.unitY * Constants.centerMargin)
+    .attr('x1', c => Constants.center.x + c.unitX * Constants.centerMargin * 0.98)
+    .attr('y1', c => Constants.center.y + c.unitY * Constants.centerMargin * 0.98)
     .attr('x2', c => c.x)
     .attr('y2', c => c.y)
-    .style('stroke', Constants.lightMode.edgeColor)
+    .style('stroke', Constants.colors.edgeColor)
     .style('stroke-width', 2); // Optional TODO: Change line width after defunct
 
   // Draw the bar diagramm
@@ -331,7 +333,7 @@ export function visualize(countries, regions, medalType) {
       ([c, year, count]) =>
         Constants.center.y + c.unitY * timeScale(year) - c.unitNormalY * Math.log(count) * 2.0
     )
-    .style('stroke', 'black')
+    .style('stroke', Constants.colors.barChartColor)
     .style('stroke-width', 5);
 
   // Draw nodes for countries
@@ -365,7 +367,8 @@ export function visualize(countries, regions, medalType) {
 
       // Font-styling
       .style('font-size', isMedalCount ? '0.8em' : '1em')
-      .style('font-family', '"Outfit", sans-serif');
+      .style('font-family', 'Outfit, sans-serif')
+      .attr('fill', Constants.colors.countryLabelColor);
     //.style('opacity', c => (c.isDefunct() ? Constants.defunctOpacity : 1.0)); // [link 1]
   }
 
@@ -414,7 +417,7 @@ export function visualize(countries, regions, medalType) {
     .attr('y1', ({ unitY }) => Constants.center.y + unitY * Constants.centerMargin)
     .attr('x2', ({ x }) => x)
     .attr('y2', ({ y }) => y)
-    .style('stroke', Constants.lightMode.edgeColor)
+    .style('stroke', Constants.colors.edgeColor)
     .style('stroke-width', 2);
 
   function addScaleLineTicks(
@@ -462,7 +465,7 @@ export function visualize(countries, regions, medalType) {
       })
       .text(textFunc)
       .style('font-size', '0.7em')
-      .style('font-family', '"Outfit", sans-serif')
+      .style('font-family', 'Outfit, sans-serif')
       .attr('fill', tickColor); // Remove for black font
   }
 
@@ -470,7 +473,7 @@ export function visualize(countries, regions, medalType) {
     timeRingYears,
     timeScale,
     'time-scale',
-    Constants.lightMode.edgeColor,
+    Constants.colors.edgeColor,
     'right',
     3,
     1,
@@ -486,7 +489,7 @@ export function visualize(countries, regions, medalType) {
     ],
     timeScale,
     'gdp-scale',
-    Constants.lightMode.spiralColor,
+    Constants.colors.spiralColor,
     'left',
     3,
     1,

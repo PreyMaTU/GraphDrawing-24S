@@ -16,6 +16,7 @@ export default {
   countryCount: 35,
 
   useAbsolute: true,
+  useBackground: true, // set to false for a transparent bg (likely what you want for exporting)
 
   categoryIndices: {
     shooting: 0,
@@ -31,7 +32,7 @@ export default {
     teams: 10,
   },
 
-  lightMode: {
+  colors: {
     categoryColors: {
       shooting: '#1f77b4',
       fighting: '#ff7f0e',
@@ -55,13 +56,16 @@ export default {
       'No Region': '#FFFFFF',
     },
 
-    backgroundColor: '#ffffff',
-    spiralColor: '#c098f7',
-    defunctColor: '#BBB',
-    edgeColor: '#aaa',
-  },
+    backgroundColor: '#252222', // "light mode" '#ffffff'
+    spiralColor: '#919eee', // "light mode" '#c098f7'
+    edgeColor: '#999999', // "light mode" '#aaa'
+    countryLabelColor: '#ffffff', // "light mode" '#000'
+    barChartColor: '#f0f0f0', // "light mode" '#000'
+    timeRingColor: '#555555', // "light mode" '#d3d3d3'
 
-  darkMode: {},
+    centerNodeDotColor: '#999999', // "light mode" '#aaa'
+    centerStructureColor: '#f0f0f0',
+  },
 
   // Computed
   radius: -1,
