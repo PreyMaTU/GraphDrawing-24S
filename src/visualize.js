@@ -496,7 +496,7 @@ export function visualize(countries, regions, medalType) {
       const position = timeScale(year);
       const gdp = Math.round(gdpScale.invert(position) / 1000);
 
-      return `$${gdp}k`;
+      return `$${gdp}b`;
     }
   );
 
