@@ -18,6 +18,7 @@ export async function loadDatasets() {
     committees,
     displayNames,
     defunct,
+    svgOffsets,
     categoryCombinations,
     popData,
   ] = await Promise.all([
@@ -30,6 +31,7 @@ export async function loadDatasets() {
     readProjectRelativeFile('../data/olympic_committees.csv'),
     readProjectRelativeFile('../data/country_display_names.csv'),
     readProjectRelativeFile('../data/defunct_countries.json'),
+    readProjectRelativeFile('../data/icon_offsets.json'),
     readProjectRelativeFile('../data/category_combinations.csv'),
     readProjectRelativeFile('../data/data_country_pop.csv'),
   ]);
@@ -55,6 +57,7 @@ export async function loadDatasets() {
     committees: d3.csvParse(committees),
     displayNames: d3.csvParse(displayNames),
     defunct: JSON.parse(defunct),
+    svgOffsets: JSON.parse(svgOffsets),
     categoryCombinations: d3.csvParse(categoryCombinations),
     popData: popDataRows,
   };
@@ -144,7 +147,7 @@ export function mergeIntoGdpData(gdp, codes, ioc, popData) {
   return countriesByNoc;
 }
 
-export function mergeIntoCountries(olympics, countryGdps, regions, displayNames, defunct) {
+export function mergeIntoCountries(olympics, countryGdps, regions, displayNames, defunct, svgOffsets) {
   /** @type {Map<string, Country>} */
   const countries = new Map();
 
@@ -164,7 +167,11 @@ export function mergeIntoCountries(olympics, countryGdps, regions, displayNames,
       }
 
       const { value: gdp, iso2, totalPop } = gdpData || { value: 0, iso2: '', totalPop: -1 };
-      const country = new Country(node.name, node.noc, region || 'No Region', gdp, iso2, totalPop);
+      var svgOffset = {'x': -700, 'y': -700}
+      if (iso2 != null) {
+        svgOffset = svgOffsets[iso2.toLowerCase()]
+      }
+      const country = new Country(node.name, node.noc, region || 'No Region', gdp, iso2, totalPop, svgOffset);
       countries.set(node.noc, country);
     }
   }
@@ -273,7 +280,7 @@ export function orderIntoOrderedRegions(countries, medalType, orderByRegions = f
  * @param {number} count
  * @param {string} medalType
  */
-export function filterTopCountriesAndMergeRest(countries, count, medalType, useAbsolute) {
+export function filterTopCountriesAndMergeRest(countries, count, medalType, useAbsolute, svgOffsets) {
   // Split the data into top countries and rest
   if (useAbsolute) {
     countries.sort((a, b) => b.medals(medalType) - a.medals(medalType));
@@ -304,6 +311,7 @@ export function filterTopCountriesAndMergeRest(countries, count, medalType, useA
       name,
       avgGdp,
       Region.fakeIso2[name] || '',
+      svgOffsets[Region.fakeIso2[name]],
       group
     );
 

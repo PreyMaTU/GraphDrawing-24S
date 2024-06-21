@@ -399,10 +399,11 @@ export function visualize(countries, regions, medalType) {
     .append('g')
     .attr(
       'transform',
-      c =>
-        `translate(${c.x + c.unitX * Constants.countryIconOffset}, ${
+      c => {
+        const offset = c.svgOffset || { 'x': -700, 'y': -700 };
+        return `translate(${c.x + c.unitX * Constants.countryIconOffset}, ${
           c.y + c.unitY * Constants.countryIconOffset
-        }) scale(0.025) translate(-700, -700)`
+        }) scale(${offset.sx}, ${offset.sy}) translate(${offset.ox}, ${offset.oy})`}
     )
     .html(c => replaceIconFillColor(c.svgIcon, regionsColors(c.region)));
 

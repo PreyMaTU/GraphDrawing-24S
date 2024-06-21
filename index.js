@@ -21,23 +21,25 @@ async function loadData() {
     committees,
     displayNames,
     defunct,
+    svgOffsets,
     categoryCombinations,
     popData,
   } = await loadDatasets();
   const regionTable = mapIntoRegionTable(committees);
   const countryGdps = mergeIntoGdpData(gdp, codes, ioc, popData);
-  const countries = mergeIntoCountries(olympics, countryGdps, regionTable, displayNames, defunct);
+  const countries = mergeIntoCountries(olympics, countryGdps, regionTable, displayNames, defunct, svgOffsets);
 
-  return [countries, categoryCombinations];
+  return [countries, categoryCombinations, svgOffsets];
 }
 
 async function prepareData(medalType) {
-  const [countries, categoryCombinations] = await loadData();
+  const [countries, categoryCombinations, svgOffsets] = await loadData();
   const filteredCountries = filterTopCountriesAndMergeRest(
     countries,
     Constants.countryCount,
     medalType,
-    Constants.useAbsolute
+    Constants.useAbsolute,
+    svgOffsets
   );
 
   await Promise.all(filteredCountries.map(c => c.loadIcon()));

@@ -162,13 +162,15 @@ export class Country {
    * @param {number} gdp GPD per capita
    * @param {string} iso2
    */
-  constructor(name, noc, region, gdp, iso2, pop) {
+  constructor(name, noc, region, gdp, iso2, pop, svgOffset) {
     this.name = name;
     this.noc = noc;
     this.region = region;
     this.gdp = gdp;
     this.pop = pop;
     this.iso2 = iso2;
+    this.svgOffset = svgOffset;
+    console.log(iso2, svgOffset)
 
     this.customDisplayName = '';
 
@@ -339,8 +341,9 @@ export class CombinedCountry extends Country {
    * @param {string} iso2
    * @param {Country[]} group
    */
-  constructor(name, noc, region, gdp, iso2, group) {
-    super(name, noc, region, gdp, iso2);
+  constructor(name, noc, region, gdp, iso2, svgOffset, group) {
+    console.log(iso2, svgOffset)
+    super(name, noc, region, gdp, iso2, null, svgOffset);
 
     this.group = group;
   }
