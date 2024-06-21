@@ -45,8 +45,8 @@ function drawCategoryMarkers(svg, position, categories) {
       count = 3;
       radius = 2;
     }
-    const xOffset = circleCoordX(Constants.categoryIndices[category], count, radius);
-    const yOffset = circleCoordY(Constants.categoryIndices[category], count, radius);
+    const xOffset = circleCoordX(Constants.categoryIndices[category], count-1, radius);
+    const yOffset = circleCoordY(Constants.categoryIndices[category], count-1, radius);
 
     let dotSize = 0.4;
     let dotColor = Constants.colors.centerNodeDotColor;
