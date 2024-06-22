@@ -170,7 +170,6 @@ export class Country {
     this.pop = pop;
     this.iso2 = iso2;
     this.svgOffset = svgOffset;
-    console.log(iso2, svgOffset)
 
     this.customDisplayName = '';
 
@@ -342,7 +341,6 @@ export class CombinedCountry extends Country {
    * @param {Country[]} group
    */
   constructor(name, noc, region, gdp, iso2, svgOffset, group) {
-    console.log(iso2, svgOffset)
     super(name, noc, region, gdp, iso2, null, svgOffset);
 
     this.group = group;

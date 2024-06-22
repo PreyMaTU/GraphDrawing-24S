@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 import json
 
+icon_scale = 0.06
 
 def get_bbox(svg_file):
     old_paths, _ = svg2paths(os.path.join('icons_old', svg_file))
@@ -24,10 +25,10 @@ def get_bbox(svg_file):
             ymax = max(p_ymax, ymax)
     
     print((xmax-xmin), (ymax-ymin))
-    xmin /= 20.5
-    xmax /= 20.5
-    ymin /= 20.5
-    ymax /= 20.5
+    xmin *= icon_scale
+    xmax *= icon_scale
+    ymin *= icon_scale
+    ymax *= icon_scale
 
 
     # print(xmin, xmax, ymin, ymax)
@@ -45,9 +46,8 @@ for filename in os.listdir('icons_old'):
     #       continue
     print(code)
     x_offset, y_offset = get_bbox(filename)
-    x_scale, y_scale = (0.06, -0.06)
+    x_scale, y_scale = (icon_scale, -icon_scale)
     if code in ['dd', 'su', 'cs', 'yu']:
-        print("#######################")
         x_offset *= 10
         y_offset *= 10
 
@@ -55,6 +55,14 @@ for filename in os.listdir('icons_old'):
         x_offset *= 5
         y_offset *= 5
         y_scale *= -1
+
+    if code in ['_eu', '_as']:
+        x_offset *= (2/3)
+        y_offset *= (2/3)
+
+    if code == '_am':
+        x_offset *= 1.666666
+        y_offset *= 1.666666
 
     svg_offsets[code] = {'ox': x_offset, 'oy': y_offset, 'sx': x_scale, 'sy': y_scale}
 
